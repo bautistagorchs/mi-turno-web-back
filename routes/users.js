@@ -1,7 +1,7 @@
 const express = require("express");
 const { User } = require("../models");
 const router = express.Router();
-
+const Appointmen = require("../models/Appointment")
 
 // tus rutas aqui
 // ... exitoooos! 😋
@@ -22,6 +22,28 @@ router.get("/operators", (req, res) => {
     });
 })
 
+
+
+// tus rutas aqui
+// ... exitoooos! 😋
+
+router.post("/newOperator",(req,res)=>{
+    User.create(req.body)
+    .then((user)=>{
+      res.statusCode = 201
+      res.send(user)
+    })
+    .catch((error)=> console.log(error))
+});
+
+router.post("/newAppointment",(req,res)=>{
+  Appointmen.create(req.body)
+  .then((resp)=>{
+    res.statusCode = 201
+    res.send(resp)
+  })
+  .catch((error)=>console.log(error))
+})
 
 
 module.exports = router;
