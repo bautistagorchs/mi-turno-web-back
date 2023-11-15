@@ -5,6 +5,9 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const db = require("./config/index");
 const routes = require("./routes/index");
+const {Appointment,User,Branch} = require("./models/index")
+
+
 
 app.use(express.json());
 app.use(morgan("dev"));
@@ -20,3 +23,5 @@ db.sync({ force: false })
     );
   })
   .catch((err) => console.error(err));
+
+module.exports = app;
