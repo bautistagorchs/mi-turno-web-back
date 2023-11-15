@@ -2,7 +2,7 @@ const Sequelize = require("sequelize");
 const db = new Sequelize("mi_turno_web", null, null, {
   host: "localhost",
   dialect: "postgres",
-  logging: false,
+  logging: true,
 });
 db.authenticate()
   .then(() => {
