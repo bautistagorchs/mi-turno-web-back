@@ -21,9 +21,13 @@ User.init(
     branch: {
       type: S.STRING,
     },
-    role: {
-      type: S.STRING,
-      allowNull: false,
+    isAdmin: {
+      type: S.BOOLEAN,
+      defaultValue: false,
+    },
+    isOperator: {
+      type: S.BOOLEAN,
+      defaultValue: false,
     },
     password: {
       type: S.STRING,

@@ -1,9 +1,9 @@
 const S = require("sequelize");
 const db = require("../config/index");
 
-class Shift extends S.Model {}
+class Appointment extends S.Model {}
 
-Shift.init(
+Appointment.init(
   {
     reservationId: {
       type: S.INTEGER,
@@ -26,7 +26,7 @@ Shift.init(
       allowNull: false,
     },
   },
-  { sequelize: db, modelName: "shifts" }
+  { sequelize: db, modelName: "appointment" }
 );
 
-module.exports = Shift;
+module.exports = Appointment;
