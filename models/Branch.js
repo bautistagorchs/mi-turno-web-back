@@ -1,39 +1,32 @@
 const S = require("sequelize");
 const db = require("../config/index");
 
-class User extends S.Model {}
+class Branch extends S.Model {}
 
-User.init(
+Branch.init(
   {
-    nameAndLast_name: {
+    name: {
       type: S.STRING,
-      allowNull: false,
-    },
-    DNI: {
-      type: S.INTEGER,
       allowNull: false,
     },
     email: {
       type: S.STRING,
       allowNull: false,
-      unique: true,
     },
-    branch: {
-      type: S.STRING,
+    telephone: {
+      type: S.INTEGER,
+      allowNull: false,
     },
-    role: {
+    openingTime: {
       type: S.STRING,
       allowNull: false,
     },
-    password: {
+    closingTime: {
       type: S.STRING,
       allowNull: false,
-    },
-    salt: {
-      type: S.STRING,
     },
   },
-  { sequelize: db, modelName: "users" }
+  { sequelize: db, modelName: "branches" }
 );
 
-module.exports = User;
+module.exports = Branch;
