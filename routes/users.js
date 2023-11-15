@@ -1,5 +1,5 @@
 const express = require("express");
-const { User } = require("../models");
+const { User, Branch } = require("../models");
 const router = express.Router();
 const Appointment = require("../models/Appointment")
 const { generateToken } = require("../config/tokens");
@@ -83,6 +83,38 @@ router.get("/operators", (req, res) => {
 
 
 
+
+
+router.put("/removeOperator", (req, res) => {
+  const { operatorId } = req.body;
+  Branch.findOne({
+    where: {
+      operatorId: operatorId,
+    },
+  })
+    .then((branch) => {
+      if (branch) {
+        return branch.setOperator(null);
+      }
+    })
+    .then(() => {
+      return User.destroy({
+        where: {
+          id: operatorId,
+        },
+      });
+    })
+    .then(() => {
+      console.log("Se eliminó el operador");
+      res.status(200).send("Operador eliminado con éxito");
+    })
+    .catch((error) => {
+      console.error("Error al eliminar operador:", error);
+      res.status(500).send("Error interno del servidor");
+    });
+})
+
+
 // tus rutas aqui
 // ... exitoooos! 😋
 
@@ -103,6 +135,7 @@ router.post("/newAppointment",(req,res)=>{
   })
   .catch((error)=>console.log(error))
 })
+
 
 
 
