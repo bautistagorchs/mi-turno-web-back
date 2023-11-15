@@ -6,6 +6,27 @@ const Appointmen = require("../models/Appointment")
 // tus rutas aqui
 // ... exitoooos! 😋
 
+
+router.post("/register", (req, res) => {
+  const { nameAndLast_name, DNI, email, password } = req.body;
+  User.findOne({ where: { email } }).then((user) => {
+    if (user) {
+      return res
+        .status(400)
+        .json({ error: "El correo electrónico ya está registrado." });
+    }
+    return User.create({ nameAndLast_name, DNI, email, password })
+      .then((user) => {
+        res.status(201).json({ redirectUrl: "/login" });
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).json({ error: "Error interno del servidor." });
+      });
+  });
+});
+
+
 //traer info operadores para admin
 router.get("/operators", (req, res) => {
   User.findAll(
@@ -44,6 +65,7 @@ router.post("/newAppointment",(req,res)=>{
   })
   .catch((error)=>console.log(error))
 })
+
 
 
 module.exports = router;
