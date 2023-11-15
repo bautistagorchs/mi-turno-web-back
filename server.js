@@ -8,6 +8,7 @@ const routes = require("./routes/index");
 const {Appointment,User,Branch} = require("./models/index")
 
 
+
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));

@@ -1,7 +1,16 @@
 const S = require("sequelize");
 const db = require("../config/index");
+const bcrypt = require("bcrypt");
+class User extends S.Model {
+  hash(password, salt) {
+    return bcrypt.hash(password, salt);
+  }
 
-class User extends S.Model {}
+  async validatePassword(password) {
+    const newHash = await this.hash(password, this.salt);
+    return newHash === this.password;
+  }
+}
 
 User.init(
   {
@@ -17,6 +26,9 @@ User.init(
       type: S.STRING,
       allowNull: false,
       unique: true,
+      validate: {
+        isEmail: true,
+      },
     },
     branch: {
       type: S.STRING,
@@ -40,4 +52,15 @@ User.init(
   { sequelize: db, modelName: "users" }
 );
 
+User.beforeCreate(async (user) => {
+  const saltRounds = 10;
+  try {
+    const salt = await bcrypt.genSalt(saltRounds);
+    user.salt = salt;
+    const hash = await user.hash(user.password, salt);
+    user.password = hash;
+  } catch (error) {
+    throw new Error("HASHING ERROR");
+  }
+});
 module.exports = User;

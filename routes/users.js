@@ -1,7 +1,45 @@
 const express = require("express");
 const { User } = require("../models");
 const router = express.Router();
-const Appointmen = require("../models/Appointment")
+const Appointment = require("../models/Appointment")
+const { generateToken } = require("../config/tokens");
+const { validateAuth } = require("../controllers/auth");
+// tus rutas aqui
+// ... exitoooos! 😋
+
+//------------------------------------------------------------
+//RUTA LOGIN
+
+router.post("/login", (req, res, next) => {
+  const { email, password } = req.body;
+
+  User.findOne({
+    where: { email },
+  }).then((user) => {
+    if (!user) return res.sendStatus(401);
+
+    user.validatePassword(password).then((isOk) => {
+      if (!isOk) return res.sendStatus(401);
+      const payload = {
+        nameAndLast_name: user.nameAndLast_name,
+        DNI: user.DNI,
+        email,
+      };
+      const token = generateToken(payload);
+      res.cookie("token", token).send(payload);
+    });
+  });
+});
+
+//RUTA DE AUTENTICACIÓN PARA LA PERSISTENCIA----------------------
+
+router.get("/auth", validateAuth, (req, res) => {
+  res.send(req.user);
+});
+
+//---------------------------------------------------------
+
+
 
 // tus rutas aqui
 // ... exitoooos! 😋
@@ -58,13 +96,14 @@ router.post("/newOperator",(req,res)=>{
 });
 
 router.post("/newAppointment",(req,res)=>{
-  Appointmen.create(req.body)
+  Appointment.create(req.body)
   .then((resp)=>{
     res.statusCode = 201
     res.send(resp)
   })
   .catch((error)=>console.log(error))
 })
+
 
 
 
