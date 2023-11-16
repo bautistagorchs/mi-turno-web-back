@@ -119,23 +119,60 @@ router.post("/logout", (req, res) => {
 });
 
 
-router.post("/newOperator",(req,res)=>{
-    User.create(req.body)
-    .then((user)=>{
+router.post("/newOperator", (req, res) => {
+  User.create(req.body)
+    .then((user) => {
       res.statusCode = 201
       res.send(user)
     })
-    .catch((error)=> console.log(error))
+    .catch((error) => console.log(error))
 });
 
-router.post("/newAppointment",(req,res)=>{
+router.post("/newAppointment", (req, res) => {
   Appointment.create(req.body)
-  .then((resp)=>{
-    res.statusCode = 201
-    res.send(resp)
-  })
-  .catch((error)=>console.log(error))
+    .then((resp) => {
+      res.statusCode = 201
+      res.send(resp)
+    })
+    .catch((error) => console.log(error))
 })
 
+//para cancelar reservas
+//================================================
+router.get("/appointment/:reservationId", (req, res) => {
+  Appointment.findOne({
+    where: {
+      reservationId: req.params.reservationId
+    }
+  })
+    .then((rsv) => {
+      if (rsv) {
+        res.status(200).send(rsv);
+      }
+      else {
+        res.status(404).send("No se encontró la reserva")
+      }
+    })
+    .catch((error) => {
+      console.error("Error al obtener la reserva:", error);
+      res.status(500).send("Error interno del servidor");
+    });
 
+})
+
+router.delete("/removeAppointment/:reservationId", (req, res) => {
+  Appointment.destroy({
+    where: {
+      reservationId: req.params.reservationId
+    }
+  })
+    .then(() => {
+      res.status(204).send("Se removió la reserva")
+    })
+    .catch((error) => {
+      console.error("Error al eliminar la reserva:", error);
+      res.status(500).send("Error interno del servidor");
+    });
+})
+//=================================================
 module.exports = router;
