@@ -99,7 +99,7 @@ router.put("/removeOperator", (req, res) => {
 });
 
 router.put("/edit/profile", (req, res) => {
-  Users.update(req.body, {
+  User.update(req.body, {
     returning: true,
     where: {
       email: req.body.email,
@@ -137,7 +137,7 @@ router.post("/newAppointment", (req, res) => {
 router.get("/appointment/:reservationId", (req, res) => {
   Appointment.findOne({
     where: {
-      reservationId: req.params.reservationIdconst appointments = require("./appointments");
+      reservationId: req.params.reservationId
 
     }
   })
