@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { User, Branch } = require("../models");
-const Appointment = require("../models/Appointment");
+const { Branch } = require("../models");
 
 router.post("/newBranch", (req, res) => {
   Branch.create(req.body)
