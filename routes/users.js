@@ -175,4 +175,30 @@ router.delete("/removeAppointment/:reservationId", (req, res) => {
     });
 })
 //=================================================
+
+//para lista de reservas usuario
+//====================================================
+router.get("/appointmentList", (req, res) => {
+  User.findOne({ where: req.body })
+    .then((user) => {
+      Appointment.findAll({
+        where: {
+          userId: user.id
+        }
+      })
+        .then((list) => {
+          if (list) {
+            res.status(200).send(list)
+          }
+          else {
+            res.status(404).send("No se encontró la reserva")
+          }
+        })
+    })
+    .catch((error) => {
+      console.error("Error al buscar las reserva:", error);
+      res.status(500).send("Error interno del servidor");
+    });
+})
+//===================================================
 module.exports = router;
