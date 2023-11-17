@@ -1,14 +1,12 @@
 const express = require("express");
 const { User, Branch } = require("../models");
 const router = express.Router();
-const Appointment = require("../models/Appointment")
+const Appointment = require("../models/Appointment");
 const { generateToken } = require("../config/tokens");
 const { validateAuth } = require("../controllers/auth");
+
 // tus rutas aqui
 // ... exitoooos! 😋
-
-//------------------------------------------------------------
-//RUTA LOGIN
 
 router.post("/login", (req, res, next) => {
   const { email, password } = req.body;
@@ -59,19 +57,17 @@ router.post("/register", (req, res) => {
 
 //traer info operadores para admin
 router.get("/operators", (req, res) => {
-  User.findAll(
-    {
-      where:
-      {
-        isOperator: true
-      }
-    })
+  User.findAll({
+    where: {
+      isOperator: true,
+    },
+  })
     .then((operators) => res.status(200).send(operators))
     .catch((error) => {
       console.error("Error al obtener la lista de operadores:", error);
       res.status(500).send("Error interno del servidor");
     });
-})
+});
 
 router.put("/removeOperator", (req, res) => {
   const { operatorId } = req.body;
@@ -100,8 +96,7 @@ router.put("/removeOperator", (req, res) => {
       console.error("Error al eliminar operador:", error);
       res.status(500).send("Error interno del servidor");
     });
-})
-
+});
 
 router.put("/edit/profile", (req, res) => {
   Users.update(req.body, {
@@ -142,7 +137,8 @@ router.post("/newAppointment", (req, res) => {
 router.get("/appointment/:reservationId", (req, res) => {
   Appointment.findOne({
     where: {
-      reservationId: req.params.reservationId
+      reservationId: req.params.reservationIdconst appointments = require("./appointments");
+
     }
   })
     .then((rsv) => {
