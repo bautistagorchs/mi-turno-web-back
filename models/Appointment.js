@@ -1,7 +1,7 @@
 const S = require("sequelize");
 const db = require("../config/index");
 
-class Appointment extends S.Model {}
+class Appointment extends S.Model { }
 
 Appointment.init(
   {
@@ -22,7 +22,7 @@ Appointment.init(
       allowNull: false,
     },
     date: {
-      type: S.INTEGER,
+      type: S.DATE,
       allowNull: false,
     },
   },
