@@ -25,6 +25,10 @@ Branch.init(
       type: S.STRING,
       allowNull: false,
     },
+    capacity : {
+      type : S.INTEGER,
+      allowNull : false
+    }
   },
   { sequelize: db, modelName: "branches" }
 );
