@@ -98,11 +98,12 @@ router.put("/removeOperator", (req, res) => {
 });
 
 router.put("/edit/profile", (req, res) => {
-  Users.update(req.body, {
+  User.update(req.body, {
     returning: true,
     where: {
       email: req.body.email,
     },
+    individualHooks: true,
   })
     .then(([affectedRows, response]) => res.status(202).send(response[0]))
     .catch((err) => console.error(err));
@@ -136,7 +137,10 @@ router.get("/appointment/:reservationId", (req, res) => {
   Appointment.findOne({
     where: {
       reservationId: req.params.reservationId,
+
     },
+    }
+
   })
     .then((rsv) => {
       if (rsv) {
@@ -190,4 +194,17 @@ router.get("/appointmentList", (req, res) => {
     });
 });
 //===================================================
+
+//para lista de reservas para operador
+//=====================================================
+router.get("/operator/reservationsList/:branchId", (req, res) => {
+  Appointment.findAll({
+    where:
+      { branchId: req.params.branchId }
+  })
+    .then((list) => {
+      res.status(200).send(list);
+    })
+})
+
 module.exports = router;
