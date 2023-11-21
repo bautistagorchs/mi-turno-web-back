@@ -4,7 +4,6 @@ const router = express.Router();
 const Appointment = require("../models/Appointment");
 const { generateToken } = require("../config/tokens");
 const { validateAuth } = require("../controllers/auth");
-
 // tus rutas aqui
 // ... exitoooos! 😋
 
@@ -46,7 +45,7 @@ router.post("/register", (req, res) => {
     }
     return User.create({ nameAndLast_name, DNI, email, password })
       .then((user) => {
-        res.status(201).json({ redirectUrl: "/login" });
+        res.status(201).json(user);
       })
       .catch((err) => {
         console.error(err);
@@ -138,7 +137,10 @@ router.get("/appointment/:reservationId", (req, res) => {
   Appointment.findOne({
     where: {
       reservationId: req.params.reservationId,
+
+    },
     }
+
   })
     .then((rsv) => {
       if (rsv) {
