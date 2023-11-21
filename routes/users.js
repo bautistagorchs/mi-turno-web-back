@@ -99,11 +99,12 @@ router.put("/removeOperator", (req, res) => {
 });
 
 router.put("/edit/profile", (req, res) => {
-  Users.update(req.body, {
+  User.update(req.body, {
     returning: true,
     where: {
       email: req.body.email,
     },
+    individualHooks: true,
   })
     .then(([affectedRows, response]) => res.status(202).send(response[0]))
     .catch((err) => console.error(err));
@@ -113,62 +114,59 @@ router.post("/logout", (req, res) => {
   res.sendStatus(401);
 });
 
-
 router.post("/newOperator", (req, res) => {
   User.create(req.body)
     .then((user) => {
-      res.statusCode = 201
-      res.send(user)
+      res.statusCode = 201;
+      res.send(user);
     })
-    .catch((error) => console.log(error))
+    .catch((error) => console.log(error));
 });
 
 router.post("/newAppointment", (req, res) => {
   Appointment.create(req.body)
     .then((resp) => {
-      res.statusCode = 201
-      res.send(resp)
+      res.statusCode = 201;
+      res.send(resp);
     })
-    .catch((error) => console.log(error))
-})
+    .catch((error) => console.log(error));
+});
 
 //para cancelar reservas
 //================================================
 router.get("/appointment/:reservationId", (req, res) => {
   Appointment.findOne({
     where: {
-      reservationId: req.params.reservationId
+      reservationId: req.params.reservationId,
     }
   })
     .then((rsv) => {
       if (rsv) {
         res.status(200).send(rsv);
-      }
-      else {
-        res.status(404).send("No se encontró la reserva")
+      } else {
+        res.status(404).send("No se encontró la reserva");
       }
     })
     .catch((error) => {
       console.error("Error al obtener la reserva:", error);
       res.status(500).send("Error interno del servidor");
     });
-
-})
+});
 
 router.delete("/removeAppointment/:reservationId", (req, res) => {
   Appointment.destroy({
     where: {
-      reservationId: req.params.reservationId
-    }
+      reservationId: req.params.reservationId,
+    },
   })
     .then(() => {
-      res.status(204).send("Se removió la reserva")
+      res.status(204).send("Se removió la reserva");
     })
     .catch((error) => {
       console.error("Error al eliminar la reserva:", error);
       res.status(500).send("Error interno del servidor");
     });
-})
+});
 //=================================================
 
 //para lista de reservas usuario
@@ -178,23 +176,21 @@ router.get("/appointmentList", (req, res) => {
     .then((user) => {
       Appointment.findAll({
         where: {
-          userId: user.id
+          userId: user.id,
+        },
+      }).then((list) => {
+        if (list) {
+          res.status(200).send(list);
+        } else {
+          res.status(404).send("No se encontró la reserva");
         }
-      })
-        .then((list) => {
-          if (list) {
-            res.status(200).send(list)
-          }
-          else {
-            res.status(404).send("No se encontró la reserva")
-          }
-        })
+      });
     })
     .catch((error) => {
       console.error("Error al buscar las reserva:", error);
       res.status(500).send("Error interno del servidor");
     });
-})
+});
 //===================================================
 
 //para lista de reservas para operador

@@ -63,4 +63,11 @@ User.beforeCreate(async (user) => {
     throw new Error("HASHING ERROR");
   }
 });
+
+User.beforeUpdate(async (user) => {
+  if (user.changed("password")) {
+    user.password = bcrypt.hashSync(user.password, 10);
+  }
+});
+
 module.exports = User;
