@@ -137,8 +137,7 @@ router.post("/newAppointment", (req, res) => {
 router.get("/appointment/:reservationId", (req, res) => {
   Appointment.findOne({
     where: {
-      reservationId: req.params.reservationIdconst appointments = require("./appointments");
-
+      reservationId: req.params.reservationId
     }
   })
     .then((rsv) => {
@@ -197,4 +196,17 @@ router.get("/appointmentList", (req, res) => {
     });
 })
 //===================================================
+
+//para lista de reservas para operador
+//=====================================================
+router.get("/operator/reservationsList/:branchId", (req, res) => {
+  Appointment.findAll({
+    where:
+      { branchId: req.params.branchId }
+  })
+    .then((list) => {
+      res.status(200).send(list);
+    })
+})
+
 module.exports = router;
