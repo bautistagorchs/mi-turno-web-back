@@ -110,7 +110,7 @@ router.put("/edit/profile", (req, res) => {
 });
 router.post("/logout", (req, res) => {
   res.clearCookie("token");
-  res.sendStatus(401);
+  res.sendStatus(200);
 });
 
 router.post("/newOperator", (req, res) => {
@@ -123,7 +123,44 @@ router.post("/newOperator", (req, res) => {
 });
 
 router.post("/newAppointment", (req, res) => {
-  Appointment.create(req.body)
+  User.update(
+    { telephone: req.body.telephone },
+    {
+      where: { email: req.body.email },
+      returning: true,
+      plain: true,
+    }
+  ).then((user) => {
+    if (user[0] === 0 || !user[1]) return res.sendStatus(404);
+
+    Appointment.create({
+      branchId: req.body.branchId,
+      branchName: req.body.branchName,
+      date: req.body.date,
+      schedule: req.body.schedule,
+    })
+      .then((appointment) => {
+        appointment.setCreatedBy(user[1]);
+        res.send(appointment);
+      })
+      .catch((error) => console.log(error));
+  });
+});
+
+//RUTA PARA ACTUALIZAR DATOS DE UNA RESERVA---------------------------------------------
+router.put("/newAppointment", (req, res) => {
+  User.update(req.body, {
+    where: { email: req.body.email },
+    returning: true,
+    plain: true,
+  });
+  Appointment.update(req.body, {
+    where: {
+      reservationId: req.body.reservationId,
+    },
+
+    returning: true,
+  })
     .then((resp) => {
       res.statusCode = 201;
       res.send(resp);
@@ -131,6 +168,7 @@ router.post("/newAppointment", (req, res) => {
     .catch((error) => console.log(error));
 });
 
+//---------------------------------------------------------------------------------------
 //para cancelar reservas
 //================================================
 router.get("/appointment/:reservationId", (req, res) => {

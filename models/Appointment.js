@@ -1,49 +1,40 @@
 const S = require("sequelize");
 const db = require("../config/index");
-
+const bcrypt = require("bcrypt");
 class Appointment extends S.Model {}
 
 Appointment.init(
   {
     reservationId: {
-      type: S.INTEGER,
-      allowNull: false,
+      type: S.STRING,
     },
     userId: {
       type: S.INTEGER,
-      allowNull: false,
-    }, 
-     branchId: {
+    },
+    branchId: {
       type: S.INTEGER,
-      allowNull: false,
     },
-    fullname: {
-     type: S.STRING,
-     allowNull: false,
-    },
+
     branchName: {
       type: S.STRING,
-      allowNull: false,
     },
     date: {
-      type: S.DATEONLY,
-      allowNull: false,
+      type: S.DATE,
     },
-    schedule:{
-      type : S.TIME,
-      allowNull: false,
+    schedule: {
+      type: S.TIME,
     },
-    telephone:{
-      type : S.INTEGER,
-      allowNull: false,
-    },
-    email: {
-      type: S.STRING,
-      allowNull: false,
-    }
-    
   },
   { sequelize: db, modelName: "appointment" }
 );
+
+Appointment.beforeCreate(async (appointment) => {
+  try {
+    const reservationId = await bcrypt.genSalt(13);
+    appointment.reservationId = reservationId;
+  } catch (error) {
+    throw new Error("HASHING ERROR");
+  }
+});
 
 module.exports = Appointment;
