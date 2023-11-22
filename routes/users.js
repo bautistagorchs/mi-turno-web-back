@@ -176,6 +176,10 @@ router.get("/appointment/:reservationId", (req, res) => {
     where: {
       reservationId: req.params.reservationId,
     },
+    include: [
+      { model: User, as: 'createdBy' },
+      { model: Branch, as: 'branch' }
+    ]
   })
     .then((rsv) => {
       if (rsv) {
@@ -234,10 +238,20 @@ router.get("/appointmentList", (req, res) => {
 //=====================================================
 router.get("/operator/reservationsList/:branchId", (req, res) => {
   Appointment.findAll({
-    where: { branchId: req.params.branchId },
-  }).then((list) => {
-    res.status(200).send(list);
-  });
-});
+    where:
+      { branchId: req.params.branchId },
+    include: [
+      { model: User, as: 'createdBy' },
+      { model: Branch, as: 'branch' }
+    ]
+  })
+    .then((list) => {
+      res.status(200).send(list);
+    })
+    .catch((error) => {
+      console.error("Error al buscar la lista de reservas:", error);
+      res.status(500).send("Error interno del servidor");
+    });
+})
 
 module.exports = router;
