@@ -14,7 +14,7 @@ Branch.init(
       allowNull: false,
     },
     telephone: {
-      type: S.INTEGER,
+      type: S.BIGINT,
       allowNull: false,
     },
     openingTime: {
@@ -25,10 +25,10 @@ Branch.init(
       type: S.STRING,
       allowNull: false,
     },
-    capacity : {
-      type : S.INTEGER,
-      allowNull : false
-    }
+    capacity: {
+      type: S.INTEGER,
+      allowNull: false,
+    },
   },
   { sequelize: db, modelName: "branches" }
 );
