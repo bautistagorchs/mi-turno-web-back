@@ -137,10 +137,7 @@ router.get("/appointment/:reservationId", (req, res) => {
   Appointment.findOne({
     where: {
       reservationId: req.params.reservationId,
-
     },
-    }
-
   })
     .then((rsv) => {
       if (rsv) {
@@ -199,12 +196,10 @@ router.get("/appointmentList", (req, res) => {
 //=====================================================
 router.get("/operator/reservationsList/:branchId", (req, res) => {
   Appointment.findAll({
-    where:
-      { branchId: req.params.branchId }
-  })
-    .then((list) => {
-      res.status(200).send(list);
-    })
-})
+    where: { branchId: req.params.branchId },
+  }).then((list) => {
+    res.status(200).send(list);
+  });
+});
 
 module.exports = router;
