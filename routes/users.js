@@ -108,6 +108,9 @@ router.put("/edit/profile", (req, res) => {
     .then(([affectedRows, response]) => res.status(202).send(response[0]))
     .catch((err) => console.error(err));
 });
+router.put("/recoverPassword", (req, res) => {
+  res.sendStatus(202);
+});
 router.post("/logout", (req, res) => {
   res.clearCookie("token");
   res.sendStatus(200);
