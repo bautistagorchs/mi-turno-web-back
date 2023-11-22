@@ -219,6 +219,10 @@ router.get("/appointmentList", (req, res) => {
         where: {
           userId: user.id,
         },
+        include: [
+          { model: User, as: 'createdBy' },
+          { model: Branch, as: 'branch' }
+        ]
       }).then((list) => {
         if (list) {
           res.status(200).send(list);
