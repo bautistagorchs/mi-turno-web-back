@@ -30,6 +30,9 @@ User.init(
         isEmail: true,
       },
     },
+    telephone: {
+      type: S.INTEGER,
+    },
     branch: {
       type: S.STRING,
     },
