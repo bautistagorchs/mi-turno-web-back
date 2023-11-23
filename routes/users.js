@@ -36,14 +36,14 @@ router.get("/auth", validateAuth, (req, res) => {
 
 //---------------------------------------------------------
 router.post("/register", (req, res) => {
-  const { nameAndLast_name, DNI, email, password } = req.body;
+  const { nameAndLast_name, DNI, email, password, isOperator } = req.body;
   User.findOne({ where: { email } }).then((user) => {
     if (user) {
       return res
         .status(400)
         .json({ error: "El correo electrónico ya está registrado." });
     }
-    return User.create({ nameAndLast_name, DNI, email, password })
+    return User.create({ nameAndLast_name, DNI, email, password, isOperator })
       .then((user) => {
         res.status(201).json(user);
       })
@@ -177,7 +177,11 @@ router.get("/appointment/:reservationId", (req, res) => {
     where: {
       reservationId: req.params.reservationId,
     },
-    include: { model: User, as: "createdBy" },
+    include: [
+      { model: User, as: "createdBy" },
+      { model: Branch, as: "branch" },
+    ],
+
   })
     .then((rsv) => {
       if (rsv) {
@@ -237,9 +241,19 @@ router.get("/appointmentList", (req, res) => {
 router.get("/operator/reservationsList/:branchId", (req, res) => {
   Appointment.findAll({
     where: { branchId: req.params.branchId },
-  }).then((list) => {
-    res.status(200).send(list);
-  });
+    include: [
+      { model: User, as: "createdBy" },
+      { model: Branch, as: "branch" },
+    ],
+  })
+    .then((list) => {
+      res.status(200).send(list);
+    })
+    .catch((error) => {
+      console.error("Error al buscar la lista de reservas:", error);
+      res.status(500).send("Error interno del servidor");
+    });
+
 });
 
 module.exports = router;

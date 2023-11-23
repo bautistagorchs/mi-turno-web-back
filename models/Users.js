@@ -31,7 +31,7 @@ User.init(
       },
     },
     telephone: {
-      type: S.INTEGER,
+      type: S.BIGINT,
     },
     branch: {
       type: S.STRING,
