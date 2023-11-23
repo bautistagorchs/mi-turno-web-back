@@ -243,21 +243,44 @@ router.get("/appointmentList", (req, res) => {
 
 //para lista de reservas para operador
 //=====================================================
-router.get("/operator/reservationsList/:branchId", (req, res) => {
-  Appointment.findAll({
-    where: { branchId: req.params.branchId },
+router.get("/operator/reservationsList", (req, res) => {
+  User.findOne({ where: req.body })
+    .then((user) => {
+      Appointment.findAll({
+        where: { userId: user.id },
+        include: [
+          { model: User, as: "createdBy" },
+          { model: Branch, as: "branch" },
+        ],
+      })
+        .then((list) => {
+          res.status(200).send(list);
+        })
+        .catch((error) => {
+          console.error("Error al buscar la lista de reservas:", error);
+          res.status(500).send("Error interno del servidor");
+        });
+    })
+
+});
+
+//ruta para traer sucursales
+//============================
+
+router.get("/admin/sucursalesList", (req, res) => {
+  Branch.findAll({
     include: [
-      { model: User, as: "createdBy" },
-      { model: Branch, as: "branch" },
+      { model: User, as: "operator" },
     ],
   })
-    .then((list) => {
-      res.status(200).send(list);
+    .then((branches) => {
+      res.status(200).send(branches);
     })
     .catch((error) => {
-      console.error("Error al buscar la lista de reservas:", error);
+      console.error("Error al buscar la lista sucursales", error);
       res.status(500).send("Error interno del servidor");
     });
-});
+
+})
 
 module.exports = router;
