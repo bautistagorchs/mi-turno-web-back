@@ -108,9 +108,6 @@ router.put("/edit/profile", (req, res) => {
     .then(([affectedRows, response]) => res.status(202).send(response[0]))
     .catch((err) => console.error(err));
 });
-router.put("/recoverPassword", (req, res) => {
-  res.sendStatus(202);
-});
 router.post("/logout", (req, res) => {
   res.clearCookie("token");
   res.sendStatus(200);
@@ -134,7 +131,8 @@ router.post("/newAppointment", (req, res) => {
       plain: true,
     }
   ).then((user) => {
-    if (user[0] === 0 || !user[1]) return res.sendStatus(404);
+    if (user[0] === 0 || !user[1])
+      return res.status(404).json({ error: "no such user in database" });
 
     Appointment.create({
       branchId: req.body.branchId,
@@ -179,10 +177,7 @@ router.get("/appointment/:reservationId", (req, res) => {
     where: {
       reservationId: req.params.reservationId,
     },
-    include: [
-      { model: User, as: 'createdBy' },
-      { model: Branch, as: 'branch' }
-    ]
+    include: { model: User, as: "createdBy" },
   })
     .then((rsv) => {
       if (rsv) {
@@ -222,10 +217,6 @@ router.get("/appointmentList", (req, res) => {
         where: {
           userId: user.id,
         },
-        include: [
-          { model: User, as: 'createdBy' },
-          { model: Branch, as: 'branch' }
-        ]
       }).then((list) => {
         if (list) {
           res.status(200).send(list);
@@ -245,20 +236,10 @@ router.get("/appointmentList", (req, res) => {
 //=====================================================
 router.get("/operator/reservationsList/:branchId", (req, res) => {
   Appointment.findAll({
-    where:
-      { branchId: req.params.branchId },
-    include: [
-      { model: User, as: 'createdBy' },
-      { model: Branch, as: 'branch' }
-    ]
-  })
-    .then((list) => {
-      res.status(200).send(list);
-    })
-    .catch((error) => {
-      console.error("Error al buscar la lista de reservas:", error);
-      res.status(500).send("Error interno del servidor");
-    });
-})
+    where: { branchId: req.params.branchId },
+  }).then((list) => {
+    res.status(200).send(list);
+  });
+});
 
 module.exports = router;

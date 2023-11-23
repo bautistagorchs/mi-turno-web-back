@@ -7,6 +7,7 @@ Appointment.init(
   {
     reservationId: {
       type: S.STRING,
+      allowNull: true,
     },
     userId: {
       type: S.INTEGER,
@@ -20,6 +21,7 @@ Appointment.init(
     },
     date: {
       type: S.DATE,
+      allowNull: true,
     },
     schedule: {
       type: S.TIME,
@@ -30,10 +32,12 @@ Appointment.init(
 
 Appointment.beforeCreate(async (appointment) => {
   try {
-    const reservationId = await bcrypt.genSalt(13);
+    const reservationId = Math.floor(
+      Math.random() * (Math.pow(10, 13) - Math.pow(10, 12)) + Math.pow(10, 12)
+    );
     appointment.reservationId = reservationId;
   } catch (error) {
-    throw new Error("HASHING ERROR");
+    throw new Error("ERROR");
   }
 });
 
