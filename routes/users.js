@@ -38,14 +38,22 @@ router.get("/me", validateAuth, (req, res) => {
 
 //---------------------------------------------------------
 router.post("/register", (req, res) => {
-  const { nameAndLast_name, DNI, email, password, isOperator } = req.body;
+  const { nameAndLast_name, DNI, email, password, isOperator, isAdmin } =
+    req.body;
   User.findOne({ where: { email } }).then((user) => {
     if (user) {
       return res
         .status(400)
         .json({ error: "El correo electrónico ya está registrado." });
     }
-    return User.create({ nameAndLast_name, DNI, email, password, isOperator })
+    return User.create({
+      nameAndLast_name,
+      DNI,
+      email,
+      password,
+      isOperator,
+      isAdmin,
+    })
       .then((user) => {
         res.status(201).json(user);
       })
