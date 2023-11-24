@@ -130,22 +130,24 @@ router.post("/newAppointment", (req, res) => {
       returning: true,
       plain: true,
     }
-  ).then((user) => {
-    if (user[0] === 0 || !user[1])
-      return res.status(404).json({ error: "no such user in database" });
+  )
+    .then((user) => {
+      if (user[0] === 0 || !user[1])
+        return res.status(404).json({ error: "no such user in database" });
 
-    Appointment.create({
-      branchId: req.body.branchId,
-      branchName: req.body.branchName,
-      date: req.body.date,
-      schedule: req.body.schedule,
-    })
-      .then((appointment) => {
-        appointment.setCreatedBy(user[1]);
-        res.send(appointment);
+      Appointment.create({
+        branchId: req.body.branchId,
+        branchName: req.body.branchName,
+        date: req.body.date,
+        schedule: req.body.schedule,
       })
-      .catch((error) => console.log(error));
-  });
+        .then((appointment) => {
+          appointment.setCreatedBy(user[1]);
+          res.send(appointment);
+        })
+        .catch((error) => console.log(error));
+    })
+    .catch((error) => console.log("no such user in database", error));
 });
 
 //RUTA PARA ACTUALIZAR DATOS DE UNA RESERVA---------------------------------------------
@@ -181,7 +183,6 @@ router.get("/appointment/:reservationId", (req, res) => {
       { model: User, as: "createdBy" },
       { model: Branch, as: "branch" },
     ],
-
   })
     .then((rsv) => {
       if (rsv) {
@@ -239,24 +240,22 @@ router.get("/appointmentList", (req, res) => {
 //para lista de reservas para operador
 //=====================================================
 router.get("/operator/reservationsList", (req, res) => {
-  User.findOne({ where: req.body })
-    .then((user) => {
-      Appointment.findAll({
-        where: { userId: user.id },
-        include: [
-          { model: User, as: "createdBy" },
-          { model: Branch, as: "branch" },
-        ],
-      })
-        .then((list) => {
-          res.status(200).send(list);
-        })
-        .catch((error) => {
-          console.error("Error al buscar la lista de reservas:", error);
-          res.status(500).send("Error interno del servidor");
-        });
+  User.findOne({ where: req.body }).then((user) => {
+    Appointment.findAll({
+      where: { userId: user.id },
+      include: [
+        { model: User, as: "createdBy" },
+        { model: Branch, as: "branch" },
+      ],
     })
-
+      .then((list) => {
+        res.status(200).send(list);
+      })
+      .catch((error) => {
+        console.error("Error al buscar la lista de reservas:", error);
+        res.status(500).send("Error interno del servidor");
+      });
+  });
 });
 
 //ruta para traer sucursales
@@ -264,9 +263,7 @@ router.get("/operator/reservationsList", (req, res) => {
 
 router.get("/admin/sucursalesList", (req, res) => {
   Branch.findAll({
-    include: [
-      { model: User, as: "operator" },
-    ],
+    include: [{ model: User, as: "operator" }],
   })
     .then((branches) => {
       res.status(200).send(branches);
