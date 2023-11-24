@@ -129,22 +129,24 @@ router.post("/newAppointment", (req, res) => {
       returning: true,
       plain: true,
     }
-  ).then((user) => {
-    if (user[0] === 0 || !user[1])
-      return res.status(404).json({ error: "no such user in database" });
+  )
+    .then((user) => {
+      if (user[0] === 0 || !user[1])
+        return res.status(404).json({ error: "no such user in database" });
 
-    Appointment.create({
-      branchId: req.body.branchId,
-      branchName: req.body.branchName,
-      date: req.body.date,
-      schedule: req.body.schedule,
-    })
-      .then((appointment) => {
-        appointment.setCreatedBy(user[1]);
-        res.send(appointment);
+      Appointment.create({
+        branchId: req.body.branchId,
+        branchName: req.body.branchName,
+        date: req.body.date,
+        schedule: req.body.schedule,
       })
-      .catch((error) => console.log(error));
-  });
+        .then((appointment) => {
+          appointment.setCreatedBy(user[1]);
+          res.send(appointment);
+        })
+        .catch((error) => console.log(error));
+    })
+    .catch((error) => console.log("no such user in database", error));
 });
 
 router.put("/newAppointment", (req, res) => {
