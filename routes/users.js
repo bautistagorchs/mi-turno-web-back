@@ -4,6 +4,7 @@ const router = express.Router();
 const Appointment = require("../models/Appointment");
 const { generateToken } = require("../config/tokens");
 const { validateAuth } = require("../controllers/auth");
+
 // tus rutas aqui
 // ... exitoooos! 😋
 
@@ -34,7 +35,6 @@ router.get("/auth", validateAuth, (req, res) => {
   res.send(req.user);
 });
 
-//---------------------------------------------------------
 router.post("/register", (req, res) => {
   const { nameAndLast_name, DNI, email, password, isOperator } = req.body;
   User.findOne({ where: { email } }).then((user) => {
@@ -54,7 +54,6 @@ router.post("/register", (req, res) => {
   });
 });
 
-//traer info operadores para admin
 router.get("/operators", (req, res) => {
   User.findAll({
     where: {
@@ -148,7 +147,6 @@ router.post("/newAppointment", (req, res) => {
   });
 });
 
-//RUTA PARA ACTUALIZAR DATOS DE UNA RESERVA---------------------------------------------
 router.put("/newAppointment", (req, res) => {
   User.update(req.body, {
     where: { email: req.body.email },
@@ -169,9 +167,6 @@ router.put("/newAppointment", (req, res) => {
     .catch((error) => console.log(error));
 });
 
-//---------------------------------------------------------------------------------------
-//para cancelar reservas
-//================================================
 router.get("/appointment/:reservationId", (req, res) => {
   Appointment.findOne({
     where: {
@@ -181,7 +176,6 @@ router.get("/appointment/:reservationId", (req, res) => {
       { model: User, as: "createdBy" },
       { model: Branch, as: "branch" },
     ],
-
   })
     .then((rsv) => {
       if (rsv) {
@@ -210,10 +204,7 @@ router.delete("/removeAppointment/:reservationId", (req, res) => {
       res.status(500).send("Error interno del servidor");
     });
 });
-//=================================================
 
-//para lista de reservas usuario
-//====================================================
 router.get("/appointmentList", (req, res) => {
   User.findOne({ where: req.body })
     .then((user) => {
@@ -234,39 +225,29 @@ router.get("/appointmentList", (req, res) => {
       res.status(500).send("Error interno del servidor");
     });
 });
-//===================================================
 
-//para lista de reservas para operador
-//=====================================================
 router.get("/operator/reservationsList", (req, res) => {
-  User.findOne({ where: req.body })
-    .then((user) => {
-      Appointment.findAll({
-        where: { userId: user.id },
-        include: [
-          { model: User, as: "createdBy" },
-          { model: Branch, as: "branch" },
-        ],
-      })
-        .then((list) => {
-          res.status(200).send(list);
-        })
-        .catch((error) => {
-          console.error("Error al buscar la lista de reservas:", error);
-          res.status(500).send("Error interno del servidor");
-        });
+  User.findOne({ where: req.body }).then((user) => {
+    Appointment.findAll({
+      where: { userId: user.id },
+      include: [
+        { model: User, as: "createdBy" },
+        { model: Branch, as: "branch" },
+      ],
     })
-
+      .then((list) => {
+        res.status(200).send(list);
+      })
+      .catch((error) => {
+        console.error("Error al buscar la lista de reservas:", error);
+        res.status(500).send("Error interno del servidor");
+      });
+  });
 });
-
-//ruta para traer sucursales
-//============================
 
 router.get("/admin/sucursalesList", (req, res) => {
   Branch.findAll({
-    include: [
-      { model: User, as: "operator" },
-    ],
+    include: [{ model: User, as: "operator" }],
   })
     .then((branches) => {
       res.status(200).send(branches);
