@@ -1,9 +1,11 @@
 const express = require("express");
-const { User, Branch } = require("../models");
 const router = express.Router();
+const Branch = require("../models/Branch");
+const User = require("../models/Users");
 const Appointment = require("../models/Appointment");
 const { generateToken } = require("../config/tokens");
 const { validateAuth } = require("../controllers/auth");
+
 
 // tus rutas aqui
 // ... exitoooos! 😋
@@ -217,13 +219,19 @@ router.delete("/removeAppointment/:reservationId", (req, res) => {
     });
 });
 
-router.get("/appointmentList", (req, res) => {
-  User.findOne({ where: req.body })
+router.get("/appointmentList/:dni", (req, res) => {
+  console.log(req.params)
+  User.findOne({
+    where: {
+      DNI: parseInt(req.params.dni)
+    }
+  })
     .then((user) => {
       Appointment.findAll({
         where: {
           userId: user.id,
         },
+        include: [{ model: Branch, as: "branch" }],
       }).then((list) => {
         if (list) {
           res.status(200).send(list);
