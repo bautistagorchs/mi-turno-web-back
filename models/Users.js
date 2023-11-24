@@ -33,9 +33,6 @@ User.init(
     telephone: {
       type: S.BIGINT,
     },
-    branch: {
-      type: S.STRING,
-    },
     isAdmin: {
       type: S.BOOLEAN,
       defaultValue: false,
