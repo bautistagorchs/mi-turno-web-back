@@ -22,6 +22,8 @@ router.post("/login", (req, res, next) => {
         nameAndLast_name: user.nameAndLast_name,
         DNI: user.DNI,
         email,
+        isAdmin: user.isAdmin,
+        isOperator: user.isOperator,
       };
       const token = generateToken(payload);
       res.cookie("token", token).send(payload);
@@ -31,7 +33,7 @@ router.post("/login", (req, res, next) => {
 
 //RUTA DE AUTENTICACIÓN PARA LA PERSISTENCIA----------------------
 
-router.get("/auth", validateAuth, (req, res) => {
+router.get("/me", validateAuth, (req, res) => {
   res.send(req.user);
 });
 
