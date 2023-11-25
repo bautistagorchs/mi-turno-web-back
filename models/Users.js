@@ -66,7 +66,9 @@ User.beforeCreate(async (user) => {
 
 User.beforeUpdate(async (user) => {
   if (user.changed("password")) {
-    user.password = bcrypt.hashSync(user.password, 10);
+    const salt = await bcrypt.genSalt(10);
+    user.salt = salt;
+    user.password = bcrypt.hashSync(user.password, salt);
   }
 });
 
