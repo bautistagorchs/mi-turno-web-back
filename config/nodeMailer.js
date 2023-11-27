@@ -3,11 +3,11 @@ const nodemailerKey = process.env.NODEMAILER_KEY;
 
   const transport = nodemailer.createTransport({
     host : "smtp.gmail.com",
-    port : 465,
-    secure: true,
+    port : 587,
+    secure: false,
     auth : {
-      user: "rochilesde08@gmail.com",
-      pass :nodemailerKey
+      user: "miturnoweb04@gmail.com",
+      pass: "ykby evae jcgs dzmy",
     }
     
   });
