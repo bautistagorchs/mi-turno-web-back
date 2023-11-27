@@ -18,11 +18,11 @@ Branch.init(
       allowNull: false,
     },
     openingTime: {
-      type: S.STRING,
+      type: S.TIME,
       allowNull: false,
     },
     closingTime: {
-      type: S.STRING,
+      type: S.TIME,
       allowNull: false,
     },
     capacity: {
