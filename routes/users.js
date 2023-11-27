@@ -6,7 +6,6 @@ const Appointment = require("../models/Appointment");
 const { generateToken } = require("../config/tokens");
 const { validateAuth } = require("../controllers/auth");
 
-
 // tus rutas aqui
 // ... exitoooos! 😋
 
@@ -220,11 +219,11 @@ router.delete("/removeAppointment/:reservationId", (req, res) => {
 });
 
 router.get("/appointmentList/:dni", (req, res) => {
-  console.log(req.params)
+  console.log(req.params);
   User.findOne({
     where: {
-      DNI: parseInt(req.params.dni)
-    }
+      DNI: parseInt(req.params.dni),
+    },
   })
     .then((user) => {
       Appointment.findAll({
@@ -276,6 +275,12 @@ router.get("/admin/sucursalesList", (req, res) => {
       console.error("Error al buscar la lista sucursales", error);
       res.status(500).send("Error interno del servidor");
     });
+});
+
+router.get("/edit/profile/:email", (req, res) => {
+  User.findOne({ where: { email: req.params.email } }).then((result) => {
+    res.status(200).send(result);
+  });
 });
 
 module.exports = router;
