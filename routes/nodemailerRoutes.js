@@ -15,7 +15,7 @@ User.findOne({where : {email: useremail}})
   if(resp){
 
     const payload = {
-      fullname: resp.dataValues.nameAndLast_name,
+      fullname: resp.dataValues.fullname,
       email: resp.dataValues.email,
     };
     const token = generateTokenNodemailer(payload)
@@ -80,7 +80,7 @@ router.post("/accountConfirmation/:email", (req, res)=>{
   
     if(resp){
       const payload = {
-        fullname: resp.dataValues.nameAndLast_name,
+        fullname: resp.dataValues.fullname,
         email: resp.dataValues.email,
       };
       const token = generateTokenNodemailer(payload)
