@@ -4,11 +4,7 @@ const Branch = require("../models/Branch");
 const User = require("../models/Users");
 const Appointment = require("../models/Appointment");
 const { generateToken } = require("../config/tokens");
-const {
-  validateAuth,
-  validateRole,
-  validatePath,
-} = require("../controllers/auth");
+const { validateAuth, validateRole } = require("../controllers/auth");
 const { Op } = require("sequelize");
 
 // tus rutas aqui
@@ -46,15 +42,15 @@ router.get("/me", validateAuth, (req, res) => {
 
 // RUTA DE REGISTRO DE USUARIOS ------------------------------------------
 
-router.post("/register", validatePath, validateRole, (req, res) => {
+router.post("/register", validateRole, (req, res) => {
   const { fullname, DNI, email, password, isOperator, isAdmin } = req.body;
 
-  if (!email || !password || !fullname || !DNI) return res.sendStatus(406);
+  if (!email || !password || !fullname || !DNI) return res.status(406).json({ error: "No completo todos los campos" });
 
-  if (req.user && !req.user.isAdmin && (isOperator || isAdmin)) {
-    return res.status(403).json({
-      error: "No tienes permisos para agregar el rol proporcionado.",
-    });
+  if (!req.user && (isOperator || isAdmin)) {
+    return res
+      .status(403)
+      .json({ error: "No tienes permisos para agregar el rol proporcionado." });
   }
 
   User.findOne({ where: { email } }).then((user) => {
@@ -373,9 +369,6 @@ router.get("/admin/sucursalesList", (req, res) => {
 router.get("/admin/operatorsList", (req, res) => {
   //operadores asociados a una sucursal
   Branch.findAll({
-    where: {
-      operatorId: { [Op.ne]: null },
-    },
     include: [{ model: User, as: "operator" }],
   })
     .then((branches) => {
