@@ -9,6 +9,8 @@ const {
   validateRole,
   validatePath,
 } = require("../controllers/auth");
+const { Op } = require("sequelize");
+
 
 // tus rutas aqui
 // ... exitoooos! 😋
@@ -140,14 +142,97 @@ router.post("/logout", (req, res) => {
   res.sendStatus(200);
 });
 
-router.post("/newOperator", (req, res) => {
-  User.create(req.body)
-    .then((user) => {
-      res.statusCode = 201;
-      res.send(user);
+router.post("/operator", (req, res) => {
+  User.findOrCreate({
+    where: {
+      [Op.or]: [
+        { email: req.body.email },
+        { DNI: req.body.DNI }
+      ]
+    },
+    defaults: req.body
+  })
+    .then(([user, created]) => {
+      if (user) {
+
+        if (!created) {
+          Branch.findOne({
+            where: {
+              operatorId: user.id
+            }
+          })
+            .then((branch) => {
+              branch.setOperator(null);
+            })
+            .then(() => {
+              user.update(req.body)
+                .then((updatedUser) => {
+                  Branch.findOne({
+                    where: {
+                      name: req.body.branch
+                    }
+                  })
+                    .then((branch) => {
+                      branch.setOperator(updatedUser);
+                    })
+                    .then(() => {
+                      res.status(200).send("Se actualizó la información del operador")
+                    })
+
+                })
+            })
+        }
+        else {
+          Branch.findOne({
+            where: {
+              name: req.body.branch
+            }
+          })
+            .then((branch) => {
+              branch.setOperator(user);
+            })
+            .then(() => {
+              res.status(200).send("Se creó el operador");
+            })
+
+        }
+
+      }
     })
-    .catch((error) => console.log(error));
+    .catch((err) => {
+      console.error("Error al crear o actualizar el operador", err);
+      res.status(500).send("Error interno del servidor");
+    });
 });
+
+router.get("/operator/info/:dni", (req, res) => {
+  User.findOne({
+    where: {
+      DNI: req.params.dni
+    }
+  })
+    .then((user) => {
+      if (user) {
+        Branch.findOne({
+          where: {
+            operatorId: user.id,
+          },
+          include: [{
+            model: User, as: "operator"
+          }]
+        })
+          .then((branchAndOp) => {
+            if (branchAndOp)
+              res.status(200).send(branchAndOp);
+            else res.status(404).send("No se encontró el operador");
+          })
+      }
+    })
+    .catch((error) => {
+      console.error("Error al buscar el operador", error);
+      res.status(500).send("Error interno del servidor");
+    })
+})
 
 router.post("/newAppointment", (req, res) => {
   User.update(
@@ -281,8 +366,24 @@ router.get("/operator/reservationsList", (req, res) => {
   });
 });
 
-router.get("/admin/sucursalesList", (req, res) => {
+router.get("/admin/sucursalesList", (req, res) => { //trae sucursales con o sin operador 
   Branch.findAll({
+    include: [{ model: User, as: "operator" }],
+  })
+    .then((branches) => {
+      res.status(200).send(branches);
+    })
+    .catch((error) => {
+      console.error("Error al buscar la lista sucursales", error);
+      res.status(500).send("Error interno del servidor");
+    });
+});
+
+router.get("/admin/operatorsList", (req, res) => { //operadores asociados a una sucursal
+  Branch.findAll({
+    where: {
+      operatorId: { [Op.ne]: null },
+    },
     include: [{ model: User, as: "operator" }],
   })
     .then((branches) => {
@@ -299,5 +400,7 @@ router.get("/edit/profile/:email", (req, res) => {
     res.status(200).send(result);
   });
 });
+
+
 
 module.exports = router;
