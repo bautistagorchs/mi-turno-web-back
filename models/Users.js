@@ -48,6 +48,10 @@ User.init(
     salt: {
       type: S.STRING,
     },
+    isConfirmed: {
+      type: S.BOOLEAN,
+      defaultValue: false,
+    },
   },
   { sequelize: db, modelName: "users" }
 );
