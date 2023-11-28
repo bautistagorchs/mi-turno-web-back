@@ -26,7 +26,7 @@ router.post("/login", (req, res, next) => {
     user.validatePassword(password).then((isOk) => {
       if (!isOk) return res.sendStatus(401);
       const payload = {
-        nameAndLast_name: user.nameAndLast_name,
+        fullname: user.fullname,
         DNI: user.DNI,
         email,
         isAdmin: user.isAdmin,
@@ -47,16 +47,14 @@ router.get("/me", validateAuth, (req, res) => {
 // RUTA DE REGISTRO DE USUARIOS ------------------------------------------
 
 router.post("/register", validatePath, validateRole, (req, res) => {
-  const { nameAndLast_name, DNI, email, password, isOperator, isAdmin } =
-    req.body;
+  const { fullname, DNI, email, password, isOperator, isAdmin } = req.body;
 
-  if (!email || !password || !nameAndLast_name || !DNI)
-    return res.sendStatus(406);
+  if (!email || !password || !fullname || !DNI) return res.sendStatus(406);
 
   if (req.user && !req.user.isAdmin && (isOperator || isAdmin)) {
-    return res
-      .status(403)
-      .json({ error: "No tienes permisos para agregar el rol proporcionado." });
+    return res.status(403).json({
+      error: "No tienes permisos para agregar el rol proporcionado.",
+    });
   }
 
   User.findOne({ where: { email } }).then((user) => {
@@ -66,7 +64,7 @@ router.post("/register", validatePath, validateRole, (req, res) => {
         .json({ error: "El correo electrónico ya está registrado." });
     }
     return User.create({
-      nameAndLast_name,
+      fullname,
       DNI,
       email,
       password,

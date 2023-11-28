@@ -14,7 +14,7 @@ class User extends S.Model {
 
 User.init(
   {
-    nameAndLast_name: {
+    fullname: {
       type: S.STRING,
       allowNull: false,
     },
