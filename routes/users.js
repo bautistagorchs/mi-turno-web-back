@@ -11,7 +11,6 @@ const {
 } = require("../controllers/auth");
 const { Op } = require("sequelize");
 
-
 // tus rutas aqui
 // ... exitoooos! 😋
 
@@ -145,58 +144,51 @@ router.post("/logout", (req, res) => {
 router.post("/operator", (req, res) => {
   User.findOrCreate({
     where: {
-      [Op.or]: [
-        { email: req.body.email },
-        { DNI: req.body.DNI }
-      ]
+      [Op.or]: [{ email: req.body.email }, { DNI: req.body.DNI }],
     },
-    defaults: req.body
+    defaults: req.body,
   })
     .then(([user, created]) => {
       if (user) {
-
         if (!created) {
           Branch.findOne({
             where: {
-              operatorId: user.id
-            }
+              operatorId: user.id,
+            },
           })
             .then((branch) => {
               branch.setOperator(null);
             })
             .then(() => {
-              user.update(req.body)
-                .then((updatedUser) => {
-                  Branch.findOne({
-                    where: {
-                      name: req.body.branch
-                    }
-                  })
-                    .then((branch) => {
-                      branch.setOperator(updatedUser);
-                    })
-                    .then(() => {
-                      res.status(200).send("Se actualizó la información del operador")
-                    })
-
+              user.update(req.body).then((updatedUser) => {
+                Branch.findOne({
+                  where: {
+                    name: req.body.branch,
+                  },
                 })
-            })
-        }
-        else {
+                  .then((branch) => {
+                    branch.setOperator(updatedUser);
+                  })
+                  .then(() => {
+                    res
+                      .status(200)
+                      .send("Se actualizó la información del operador");
+                  });
+              });
+            });
+        } else {
           Branch.findOne({
             where: {
-              name: req.body.branch
-            }
+              name: req.body.branch,
+            },
           })
             .then((branch) => {
               branch.setOperator(user);
             })
             .then(() => {
               res.status(200).send("Se creó el operador");
-            })
-
+            });
         }
-
       }
     })
     .catch((err) => {
@@ -208,8 +200,8 @@ router.post("/operator", (req, res) => {
 router.get("/operator/info/:dni", (req, res) => {
   User.findOne({
     where: {
-      DNI: req.params.dni
-    }
+      DNI: req.params.dni,
+    },
   })
     .then((user) => {
       if (user) {
@@ -217,22 +209,23 @@ router.get("/operator/info/:dni", (req, res) => {
           where: {
             operatorId: user.id,
           },
-          include: [{
-            model: User, as: "operator"
-          }]
-        })
-          .then((branchAndOp) => {
-            if (branchAndOp)
-              res.status(200).send(branchAndOp);
-            else res.status(404).send("No se encontró el operador");
-          })
+          include: [
+            {
+              model: User,
+              as: "operator",
+            },
+          ],
+        }).then((branchAndOp) => {
+          if (branchAndOp) res.status(200).send(branchAndOp);
+          else res.status(404).send("No se encontró el operador");
+        });
       }
     })
     .catch((error) => {
       console.error("Error al buscar el operador", error);
       res.status(500).send("Error interno del servidor");
-    })
-})
+    });
+});
 
 router.post("/newAppointment", (req, res) => {
   User.update(
@@ -249,7 +242,6 @@ router.post("/newAppointment", (req, res) => {
 
       Appointment.create({
         branchId: req.body.branchId,
-        branchName: req.body.branchName,
         date: req.body.date,
         schedule: req.body.schedule,
       })
@@ -366,7 +358,8 @@ router.get("/operator/reservationsList", (req, res) => {
   });
 });
 
-router.get("/admin/sucursalesList", (req, res) => { //trae sucursales con o sin operador 
+router.get("/admin/sucursalesList", (req, res) => {
+  //trae sucursales con o sin operador
   Branch.findAll({
     include: [{ model: User, as: "operator" }],
   })
@@ -379,7 +372,8 @@ router.get("/admin/sucursalesList", (req, res) => { //trae sucursales con o sin 
     });
 });
 
-router.get("/admin/operatorsList", (req, res) => { //operadores asociados a una sucursal
+router.get("/admin/operatorsList", (req, res) => {
+  //operadores asociados a una sucursal
   Branch.findAll({
     where: {
       operatorId: { [Op.ne]: null },
@@ -400,7 +394,5 @@ router.get("/edit/profile/:email", (req, res) => {
     res.status(200).send(result);
   });
 });
-
-
 
 module.exports = router;
