@@ -22,7 +22,7 @@ router.post("/login", (req, res, next) => {
     user.validatePassword(password).then((isOk) => {
       if (!isOk) return res.sendStatus(401);
       const payload = {
-        nameAndLast_name: user.nameAndLast_name,
+        fullname: user.fullname,
         DNI: user.DNI,
         email,
         isAdmin: user.isAdmin,
@@ -43,11 +43,9 @@ router.get("/me", validateAuth, (req, res) => {
 // RUTA DE REGISTRO DE USUARIOS ------------------------------------------
 
 router.post("/register", validateRole, (req, res) => {
-  const { nameAndLast_name, DNI, email, password, isOperator, isAdmin } =
-    req.body;
+  const { fullname, DNI, email, password, isOperator, isAdmin } = req.body;
 
-  if (!email || !password || !nameAndLast_name || !DNI)
-    return res.status(406).json({ error: "No completo todos los campos" });
+  if (!email || !password || !fullname || !DNI) return res.status(406).json({ error: "No completo todos los campos" });
 
   if (!req.user && (isOperator || isAdmin)) {
     return res
@@ -62,7 +60,7 @@ router.post("/register", validateRole, (req, res) => {
         .json({ error: "El correo electrónico ya está registrado." });
     }
     return User.create({
-      nameAndLast_name,
+      fullname,
       DNI,
       email,
       password,
@@ -137,13 +135,90 @@ router.post("/logout", (req, res) => {
   res.sendStatus(200);
 });
 
-router.post("/newOperator", (req, res) => {
-  User.create(req.body)
-    .then((user) => {
-      res.statusCode = 201;
-      res.send(user);
+router.post("/operator", (req, res) => {
+  User.findOrCreate({
+    where: {
+      [Op.or]: [{ email: req.body.email }, { DNI: req.body.DNI }],
+    },
+    defaults: req.body,
+  })
+    .then(([user, created]) => {
+      if (user) {
+        if (!created) {
+          Branch.findOne({
+            where: {
+              operatorId: user.id,
+            },
+          })
+            .then((branch) => {
+              branch.setOperator(null);
+            })
+            .then(() => {
+              user.update(req.body).then((updatedUser) => {
+                Branch.findOne({
+                  where: {
+                    name: req.body.branch,
+                  },
+                })
+                  .then((branch) => {
+                    branch.setOperator(updatedUser);
+                  })
+                  .then(() => {
+                    res
+                      .status(200)
+                      .send("Se actualizó la información del operador");
+                  });
+              });
+            });
+        } else {
+          Branch.findOne({
+            where: {
+              name: req.body.branch,
+            },
+          })
+            .then((branch) => {
+              branch.setOperator(user);
+            })
+            .then(() => {
+              res.status(200).send("Se creó el operador");
+            });
+        }
+      }
     })
-    .catch((error) => console.log(error));
+    .catch((err) => {
+      console.error("Error al crear o actualizar el operador", err);
+      res.status(500).send("Error interno del servidor");
+    });
+});
+
+router.get("/operator/info/:dni", (req, res) => {
+  User.findOne({
+    where: {
+      DNI: req.params.dni,
+    },
+  })
+    .then((user) => {
+      if (user) {
+        Branch.findOne({
+          where: {
+            operatorId: user.id,
+          },
+          include: [
+            {
+              model: User,
+              as: "operator",
+            },
+          ],
+        }).then((branchAndOp) => {
+          if (branchAndOp) res.status(200).send(branchAndOp);
+          else res.status(404).send("No se encontró el operador");
+        });
+      }
+    })
+    .catch((error) => {
+      console.error("Error al buscar el operador", error);
+      res.status(500).send("Error interno del servidor");
+    });
 });
 
 router.post("/newAppointment", (req, res) => {
@@ -161,7 +236,6 @@ router.post("/newAppointment", (req, res) => {
 
       Appointment.create({
         branchId: req.body.branchId,
-        branchName: req.body.branchName,
         date: req.body.date,
         schedule: req.body.schedule,
       })
@@ -279,6 +353,21 @@ router.get("/operator/reservationsList", (req, res) => {
 });
 
 router.get("/admin/sucursalesList", (req, res) => {
+  //trae sucursales con o sin operador
+  Branch.findAll({
+    include: [{ model: User, as: "operator" }],
+  })
+    .then((branches) => {
+      res.status(200).send(branches);
+    })
+    .catch((error) => {
+      console.error("Error al buscar la lista sucursales", error);
+      res.status(500).send("Error interno del servidor");
+    });
+});
+
+router.get("/admin/operatorsList", (req, res) => {
+  //operadores asociados a una sucursal
   Branch.findAll({
     include: [{ model: User, as: "operator" }],
   })
