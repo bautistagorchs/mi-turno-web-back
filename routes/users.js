@@ -4,13 +4,18 @@ const Branch = require("../models/Branch");
 const User = require("../models/Users");
 const Appointment = require("../models/Appointment");
 const { generateToken } = require("../config/tokens");
-const { validateAuth } = require("../controllers/auth");
+const {
+  validateAuth,
+  validateRole,
+  validatePath,
+} = require("../controllers/auth");
 
 // tus rutas aqui
 // ... exitoooos! 😋
 
 router.post("/login", (req, res, next) => {
   const { email, password } = req.body;
+  if (!email || !password) return res.sendStatus(406);
 
   User.findOne({
     where: { email },
@@ -38,9 +43,21 @@ router.get("/me", validateAuth, (req, res) => {
   res.send(req.user);
 });
 
-router.post("/register", (req, res) => {
+// RUTA DE REGISTRO DE USUARIOS ------------------------------------------
+
+router.post("/register", validatePath, validateRole, (req, res) => {
   const { nameAndLast_name, DNI, email, password, isOperator, isAdmin } =
     req.body;
+
+  if (!email || !password || !nameAndLast_name || !DNI)
+    return res.sendStatus(406);
+
+  if (req.user && !req.user.isAdmin && (isOperator || isAdmin)) {
+    return res
+      .status(403)
+      .json({ error: "No tienes permisos para agregar el rol proporcionado." });
+  }
+
   User.findOne({ where: { email } }).then((user) => {
     if (user) {
       return res
