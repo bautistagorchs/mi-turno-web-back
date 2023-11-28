@@ -1,5 +1,4 @@
 const nodemailer = require("nodemailer");
-const nodemailerKey = process.env.NODEMAILER_KEY;
 
   const transport = nodemailer.createTransport({
     host : "smtp.gmail.com",
