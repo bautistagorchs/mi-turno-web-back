@@ -15,10 +15,6 @@ Appointment.init(
     branchId: {
       type: S.INTEGER,
     },
-
-    branchName: {
-      type: S.STRING,
-    },
     date: {
       type: S.DATE,
       allowNull: true,

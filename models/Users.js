@@ -14,7 +14,7 @@ class User extends S.Model {
 
 User.init(
   {
-    nameAndLast_name: {
+    fullname: {
       type: S.STRING,
       allowNull: false,
     },
@@ -47,6 +47,10 @@ User.init(
     },
     salt: {
       type: S.STRING,
+    },
+    isConfirmed: {
+      type: S.BOOLEAN,
+      defaultValue: false,
     },
   },
   { sequelize: db, modelName: "users" }
