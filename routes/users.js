@@ -27,6 +27,7 @@ router.post("/login", (req, res, next) => {
         email,
         isAdmin: user.isAdmin,
         isOperator: user.isOperator,
+        isConfirmed : user.isConfirmed
       };
       const token = generateToken(payload);
       res.cookie("token", token).send(payload);
