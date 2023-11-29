@@ -90,11 +90,11 @@ router.get("/operators", (req, res) => {
     });
 });
 
-router.put("/removeOperator", (req, res) => {
-  const { operatorId } = req.body;
+router.put("/removeOperator/:id", (req, res) => {
+
   Branch.findOne({
     where: {
-      operatorId: operatorId,
+      operatorId: req.params.id,
     },
   })
     .then((branch) => {
@@ -105,7 +105,7 @@ router.put("/removeOperator", (req, res) => {
     .then(() => {
       return User.destroy({
         where: {
-          id: operatorId,
+          id: req.params.id,
         },
       });
     })
@@ -333,22 +333,38 @@ router.get("/appointmentList/:dni", (req, res) => {
     });
 });
 
-router.get("/operator/reservationsList", (req, res) => {
-  User.findOne({ where: req.body }).then((user) => {
-    Appointment.findAll({
-      where: { userId: user.id },
-      include: [
-        { model: User, as: "createdBy" },
-        { model: Branch, as: "branch" },
-      ],
+router.get("/operator/reservationsList/:dni", (req, res) => {
+  User.findOne({
+    where: {
+      DNI: req.params.dni
+    }
+  }).then((user) => {
+
+    Branch.findOne({
+      where: {
+        operatorId: user.id,
+      }
     })
-      .then((list) => {
-        res.status(200).send(list);
+      .then((branch) => {
+        Appointment.findAll({
+          where: {
+            branchId: branch.id
+          },
+          include: [
+            { model: User, as: "createdBy" },
+            { model: Branch, as: "branch" },
+          ],
+        })
+          .then((reservationList) => {
+            res.status(200).send(reservationList);
+          })
+          .catch((error) => {
+            console.error("Error al buscar la lista de reservas:", error);
+            res.status(500).send("Error interno del servidor");
+          });
       })
-      .catch((error) => {
-        console.error("Error al buscar la lista de reservas:", error);
-        res.status(500).send("Error interno del servidor");
-      });
+
+
   });
 });
 
