@@ -90,7 +90,7 @@ router.get("/operators", (req, res) => {
     });
 });
 
-router.put("/removeOperator/:id", (req, res) => {
+router.put("/admin/deleteOperator/:id", (req, res) => {
 
   Branch.findOne({
     where: {
@@ -151,13 +151,14 @@ router.post("/operator", (req, res) => {
             },
           })
             .then((branch) => {
-              branch.setOperator(null);
+              if(branch)
+                branch.setOperator(null);
             })
             .then(() => {
               user.update(req.body).then((updatedUser) => {
                 Branch.findOne({
                   where: {
-                    name: req.body.branch,
+                    id: req.body.branchId,
                   },
                 })
                   .then((branch) => {
@@ -173,7 +174,7 @@ router.post("/operator", (req, res) => {
         } else {
           Branch.findOne({
             where: {
-              name: req.body.branch,
+              id: req.body.branchId,
             },
           })
             .then((branch) => {
@@ -210,9 +211,18 @@ router.get("/operator/info/:dni", (req, res) => {
             },
           ],
         }).then((branchAndOp) => {
+         
           if (branchAndOp) res.status(200).send(branchAndOp);
-          else res.status(404).send("No se encontró el operador");
-        });
+          else{
+            res.status(200).send({ //enviar operador sin branch
+              operator : user
+            })
+          }
+         
+        })
+        .catch(err =>{
+          res.status(404).send("No se encontró el operador")
+        })
       }
     })
     .catch((error) => {
@@ -267,6 +277,30 @@ router.put("/newAppointment", (req, res) => {
     })
     .catch((error) => console.log(error));
 });
+
+router.put("/admin/deleteBranch/:id",(req, res)=>{
+  Appointment.destroy(
+   {
+     where:{
+      branchId: req.params.id
+    }
+  }
+  )
+  .then(()=>{
+    Branch.destroy({
+      where:{
+        id: req.params.id
+      }
+    })
+  })
+  .then(()=>{
+    res.status(200).send("Se elimino la sucursal y las reservas asociadas");
+  })
+  .catch(err=>{
+    console.log("Error al eliminar la sucursal", err);
+    res.status(500).send("Error interno del servidor");
+  })
+})
 
 router.get("/appointment/:reservationId", (req, res) => {
   Appointment.findOne({
@@ -381,6 +415,21 @@ router.get("/admin/sucursalesList", (req, res) => {
       res.status(500).send("Error interno del servidor");
     });
 });
+
+router.get("/admin/allOperators", (req, res)=>{ //trae operadores sin informacion de la sucursal asocioada
+  User.findAll({
+    where:{
+      isOperator : true,
+    }
+  })
+  .then((operators)=>{
+    res.status(200).send(operators);
+  })
+  .catch((error)=>{
+    console.log("Error al buscar los operadores: ", error);
+    res.status(500).send("Error interno del servidor");
+  })
+})
 
 router.get("/admin/operatorsList", (req, res) => {
   //operadores asociados a una sucursal
