@@ -22,6 +22,10 @@ Appointment.init(
     schedule: {
       type: S.TIME,
     },
+    attended :{
+      type: S.BOOLEAN,
+      defaultValue: false,
+    }
   },
   { sequelize: db, modelName: "appointment" }
 );
