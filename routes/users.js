@@ -44,7 +44,7 @@ router.get("/me", validateAuth, (req, res) => {
 // RUTA DE REGISTRO DE USUARIOS ------------------------------------------
 
 router.post("/register", validateRole, (req, res) => {
-  const { fullname, DNI, email, password, isOperator, isAdmin } = req.body;
+  const { fullname, DNI, email, password, isOperator, isAdmin, isConfirmed } = req.body;
 
   if (!email || !password || !fullname || !DNI) return res.status(406).json({ error: "No completo todos los campos" });
 
@@ -67,6 +67,7 @@ router.post("/register", validateRole, (req, res) => {
       password,
       isOperator,
       isAdmin,
+      isConfirmed
     })
       .then((user) => {
         res.status(201).json(user);
