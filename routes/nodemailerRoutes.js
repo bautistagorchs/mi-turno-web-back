@@ -141,11 +141,11 @@ router.post("/appointment/confirmation", (req, res) => {
     {
       from: "Mi turno Web <miturnoweb04@gmail.com>",
       to: email,
-      subject: "Turno confirmado!",
+      subject: "Turno confirmado! 📅",
       text: `Reservaste el turno exitosamente. La sucursal ${branch}, te espera el ${date} a las ${time}. Gracias por confiar en nosotros, que difrutes tu visita!`,
       html: `<h2>Reservaste el turno exitosamente!</h2>
       <h3>Te esperamos en la sucursal ${branch} el ${date} a las ${time}.</h3>
-      <h5>Gracias por confiar en nosotros, que difrutes tu visita!</h5>`,
+      <h5>Gracias por confiar en nosotros, que disfrutes tu visita!</h5>`,
     },
     (error) => {
       if (error) {
