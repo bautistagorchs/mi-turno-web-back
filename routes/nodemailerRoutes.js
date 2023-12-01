@@ -23,9 +23,13 @@ User.findOne({where : {email: useremail}})
     transport.sendMail({
       from: "miturnoweb04@gmail.com",
       to: resp.dataValues.email,
-      subject: "Recover Password",
-      text: "Enter this link to recover your password",
-      html: `<a href="http://localhost:3000/recoverPassword/${token}">Recover password</a>`
+      subject: "Recuperación de Contraseña",
+      text: "Solicistaste el cambio de contraseña",
+      html: `
+      <h3>Para el cambio de su Contraseña ingrese al siguiente enlace</h3>
+      <h5>Recuerde que para efectuar el cambio solo tienes 10 minutos desde el envio de este Correo, transcurrido dicho tiempo sin haber ingresado al enlace y efectuar el cambio de su contraseña, este mismo enlace sera invalido!</h5>
+      <a href="http://localhost:3000/recoverPassword/${token}">Recuperar Contraseña 🔑</a>
+      `
     },
      (error, info) => {
       if (error) {
@@ -88,8 +92,11 @@ router.post("/accountConfirmation/:email", (req, res)=>{
         transport.sendMail({
         from: "miturnoweb04@gmail.com",
         to: resp.dataValues.email,
-        subject:"Registration Confirmation",
-        html: `<a href="http://localhost:3000/ConfirmationOfRegistration/${token}">Confirm Registration</a>`
+        subject:"Confirmación de Registro",
+        html: `
+        <h3>Para la confirmación de su cuenta ingrese al siguiente enlace </h3>
+       <h5>Recuerde que para efectuar la confirmación de su cuenta solo dispone de 10 minutos desde el envio de este Correo, transcurrido dicho tiempo sin haber ingresado al enlace y efectuar la confirmacion de su cuenta este mismo enlace sera invalido y debera solicitar uno nuevamente desde el mismo!</h5>
+        <a href="http://localhost:3000/ConfirmationOfRegistration/${token}">Confirmar Registro ✔️</a>`
       },
       (error, info) => {
        if (error) {
