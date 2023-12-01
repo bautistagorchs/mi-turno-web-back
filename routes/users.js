@@ -418,34 +418,32 @@ router.get("/admin/sucursalesList", (req, res) => {
     });
 });
 
-router.get("/admin/allOperators", (req, res)=>{ //trae operadores sin informacion de la sucursal asocioada
+router.get("/admin/operatorsList", (req, res)=>{
   User.findAll({
     where:{
       isOperator : true,
     }
   })
-  .then((operators)=>{
-    res.status(200).send(operators);
+  .then((operators) => {
+    const all = operators.map((op) => {
+      const opb = { ...op.toJSON() }; 
+      return Branch.findOne({ where: { operatorId: op.id } })
+        .then((b) => {
+          opb.branchInfo = b;
+          return opb;
+        });
+    });
+
+    return Promise.all(all);
+  })
+  .then((allOperators) => {
+    res.status(200).send(allOperators);
   })
   .catch((error)=>{
     console.log("Error al buscar los operadores: ", error);
     res.status(500).send("Error interno del servidor");
   })
 })
-
-router.get("/admin/operatorsList", (req, res) => {
-  //operadores asociados a una sucursal
-  Branch.findAll({
-    include: [{ model: User, as: "operator" }],
-  })
-    .then((branches) => {
-      res.status(200).send(branches);
-    })
-    .catch((error) => {
-      console.error("Error al buscar la lista sucursales", error);
-      res.status(500).send("Error interno del servidor");
-    });
-});
 
 router.get("/edit/profile/:email", (req, res) => {
   User.findOne({ where: { email: req.params.email } }).then((result) => {
