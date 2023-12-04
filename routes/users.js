@@ -27,7 +27,7 @@ router.post("/login", (req, res, next) => {
         email,
         isAdmin: user.isAdmin,
         isOperator: user.isOperator,
-        isConfirmed : user.isConfirmed
+        isConfirmed: user.isConfirmed,
       };
       const token = generateToken(payload);
       res.cookie("token", token).send(payload);
@@ -44,9 +44,11 @@ router.get("/me", validateAuth, (req, res) => {
 // RUTA DE REGISTRO DE USUARIOS ------------------------------------------
 
 router.post("/register", validateRole, (req, res) => {
-  const { fullname, DNI, email, password, isOperator, isAdmin, isConfirmed } = req.body;
+  const { fullname, DNI, email, password, isOperator, isAdmin, isConfirmed } =
+    req.body;
 
-  if (!email || !password || !fullname || !DNI) return res.status(406).json({ error: "No completo todos los campos" });
+  if (!email || !password || !fullname || !DNI)
+    return res.status(406).json({ error: "No completo todos los campos" });
 
   if (!req.user && (isOperator || isAdmin)) {
     return res
@@ -67,7 +69,7 @@ router.post("/register", validateRole, (req, res) => {
       password,
       isOperator,
       isAdmin,
-      isConfirmed
+      isConfirmed,
     })
       .then((user) => {
         res.status(201).json(user);
@@ -93,7 +95,6 @@ router.get("/operators", (req, res) => {
 });
 
 router.put("/admin/deleteOperator/:id", (req, res) => {
-
   Branch.findOne({
     where: {
       operatorId: req.params.id,
@@ -112,7 +113,6 @@ router.put("/admin/deleteOperator/:id", (req, res) => {
       });
     })
     .then(() => {
-      console.log("Se eliminó el operador");
       res.status(200).send("Operador eliminado con éxito");
     })
     .catch((error) => {
@@ -153,8 +153,7 @@ router.post("/operator", (req, res) => {
             },
           })
             .then((branch) => {
-              if(branch)
-                branch.setOperator(null);
+              if (branch) branch.setOperator(null);
             })
             .then(() => {
               user.update(req.body).then((updatedUser) => {
@@ -194,10 +193,10 @@ router.post("/operator", (req, res) => {
     });
 });
 
-router.get("/operator/info/:dni", (req, res) => {
+router.get("/operator/info/:DNI", (req, res) => {
   User.findOne({
     where: {
-      DNI: req.params.dni,
+      DNI: req.params.DNI,
     },
   })
     .then((user) => {
@@ -212,19 +211,19 @@ router.get("/operator/info/:dni", (req, res) => {
               as: "operator",
             },
           ],
-        }).then((branchAndOp) => {
-         
-          if (branchAndOp) res.status(200).send(branchAndOp);
-          else{
-            res.status(200).send({ //enviar operador sin branch
-              operator : user
-            })
-          }
-         
         })
-        .catch(err =>{
-          res.status(404).send("No se encontró el operador")
-        })
+          .then((branchAndOp) => {
+            if (branchAndOp) res.status(200).send(branchAndOp);
+            else {
+              res.status(200).send({
+                //enviar operador sin branch
+                operator: user,
+              });
+            }
+          })
+          .catch((err) => {
+            res.status(404).send("No se encontró el operador");
+          });
       }
     })
     .catch((error) => {
@@ -280,29 +279,26 @@ router.put("/newAppointment", (req, res) => {
     .catch((error) => console.log(error));
 });
 
-router.put("/admin/deleteBranch/:id",(req, res)=>{
-  Appointment.destroy(
-   {
-     where:{
-      branchId: req.params.id
-    }
-  }
-  )
-  .then(()=>{
-    Branch.destroy({
-      where:{
-        id: req.params.id
-      }
+router.put("/admin/deleteBranch/:id", (req, res) => {
+  Appointment.destroy({
+    where: {
+      branchId: req.params.id,
+    },
+  })
+    .then(() => {
+      Branch.destroy({
+        where: {
+          id: req.params.id,
+        },
+      });
     })
-  })
-  .then(()=>{
-    res.status(200).send("Se elimino la sucursal y las reservas asociadas");
-  })
-  .catch(err=>{
-    console.log("Error al eliminar la sucursal", err);
-    res.status(500).send("Error interno del servidor");
-  })
-})
+    .then(() => {
+      res.status(200).send("Se elimino la sucursal y las reservas asociadas");
+    })
+    .catch((err) => {
+      res.status(500).send("Error interno del servidor");
+    });
+});
 
 router.get("/appointment/:reservationId", (req, res) => {
   Appointment.findOne({
@@ -342,11 +338,10 @@ router.delete("/removeAppointment/:reservationId", (req, res) => {
     });
 });
 
-router.get("/appointmentList/:dni", (req, res) => {
-  console.log(req.params);
+router.get("/appointmentList/:DNI", (req, res) => {
   User.findOne({
     where: {
-      DNI: parseInt(req.params.dni),
+      DNI: parseInt(req.params.DNI),
     },
   })
     .then((user) => {
@@ -369,38 +364,34 @@ router.get("/appointmentList/:dni", (req, res) => {
     });
 });
 
-router.get("/operator/reservationsList/:dni", (req, res) => {
+router.get("/operator/reservationsList/:DNI", (req, res) => {
   User.findOne({
     where: {
-      DNI: req.params.dni
-    }
+      DNI: req.params.DNI,
+    },
   }).then((user) => {
-
     Branch.findOne({
       where: {
         operatorId: user.id,
-      }
-    })
-      .then((branch) => {
-        Appointment.findAll({
-          where: {
-            branchId: branch.id
-          },
-          include: [
-            { model: User, as: "createdBy" },
-            { model: Branch, as: "branch" },
-          ],
-        })
-          .then((reservationList) => {
-            res.status(200).send(reservationList);
-          })
-          .catch((error) => {
-            console.error("Error al buscar la lista de reservas:", error);
-            res.status(500).send("Error interno del servidor");
-          });
+      },
+    }).then((branch) => {
+      Appointment.findAll({
+        where: {
+          branchId: branch.id,
+        },
+        include: [
+          { model: User, as: "createdBy" },
+          { model: Branch, as: "branch" },
+        ],
       })
-
-
+        .then((reservationList) => {
+          res.status(200).send(reservationList);
+        })
+        .catch((error) => {
+          console.error("Error al buscar la lista de reservas:", error);
+          res.status(500).send("Error interno del servidor");
+        });
+    });
   });
 });
 
@@ -418,37 +409,44 @@ router.get("/admin/sucursalesList", (req, res) => {
     });
 });
 
-router.get("/admin/operatorsList", (req, res)=>{
+router.get("/admin/operatorsList", (req, res) => {
   User.findAll({
-    where:{
-      isOperator : true,
-    }
+    where: {
+      isOperator: true,
+    },
   })
-  .then((operators) => {
-    const all = operators.map((op) => {
-      const opb = { ...op.toJSON() }; 
-      return Branch.findOne({ where: { operatorId: op.id } })
-        .then((b) => {
+    .then((operators) => {
+      const all = operators.map((op) => {
+        const opb = { ...op.toJSON() };
+        return Branch.findOne({ where: { operatorId: op.id } }).then((b) => {
           opb.branchInfo = b;
           return opb;
         });
-    });
+      });
 
-    return Promise.all(all);
-  })
-  .then((allOperators) => {
-    res.status(200).send(allOperators);
-  })
-  .catch((error)=>{
-    console.log("Error al buscar los operadores: ", error);
-    res.status(500).send("Error interno del servidor");
-  })
-})
+      return Promise.all(all);
+    })
+    .then((allOperators) => {
+      res.status(200).send(allOperators);
+    })
+    .catch((error) => {
+      res.status(500).send("Error interno del servidor");
+    });
+});
 
 router.get("/edit/profile/:email", (req, res) => {
   User.findOne({ where: { email: req.params.email } }).then((result) => {
     res.status(200).send(result);
   });
+});
+router.put("/delete", (req, res) => {
+  User.destroy({
+    where: {
+      email: req.body.email,
+    },
+  })
+    .then((erasedUser) => res.sendStatus(200))
+    .catch((err) => console.error(err));
 });
 
 module.exports = router;
