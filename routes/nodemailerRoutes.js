@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const {User, Branch} = require("../models");
+const {User, Branch, Appointment} = require("../models");
 const {transport} = require("../config/nodeMailer");
 const {  generateTokenNodemailer,validateTokenNodemailer} = require("../config/tokenPassword")
 
@@ -167,9 +167,9 @@ router.post("/appointment/cancellation", (req, res) => {
       from: "Mi turno Web <miturnoweb04@gmail.com>",
       to: email,
       subject: "Turno cancelado!",
-      text: `Su turno en la sucursal ${branch}, el dia ${date} a las ${time} se ha cancelado exitosamente. Esperamos que solicite un nuevo turno a la brebedad`,
+      text: `Su turno en la sucursal ${branch}, el dia ${date} a las ${time}hs se ha cancelado exitosamente. Esperamos que solicite un nuevo turno a la brevedad`,
       html: `<h2>Se ha cancelado el turno exitosamente!</h2>
-      <h3>Su turno en la sucursal ${branch}, el dia ${date} a las ${time} se ha cancelado exitosamente. Esperamos que solicite un nuevo turno a la brebedad.</h3>
+      <h3>Su turno en la sucursal ${branch}, el dia ${date} a las ${time}hs se ha cancelado exitosamente. Esperamos que solicite un nuevo turno a la brevedad.</h3>
       <h5>Gracias por confiar en nosotros, esperamos verle pronto!</h5>`,
     },
     (error) => {
@@ -186,15 +186,26 @@ router.post("/appointment/cancellation", (req, res) => {
   );
 });
 router.post("/appointment/EditConfirmation", (req, res) => {
-  const { email, branch, date, time } = req.body;
-  transport.sendMail(
+  const { email,reservationId,date,time} = req.body;
+  Appointment.findOne({
+    where: {
+      reservationId:reservationId,
+    },
+    include: [
+      { model: Branch, as: "branch" },
+    ],
+  })
+  .then((resp)=>{
+ const branch = resp.dataValues.branch.dataValues.name
+
+ transport.sendMail(
     {
       from: "Mi turno Web <miturnoweb04@gmail.com>",
       to: email,
       subject: "Turno Modificado! 📅",
       text: `Modificaste el turno exitosamente. La sucursal ${branch}, te espera el ${date} a las ${time}. Gracias por confiar en nosotros, que disfrutes tu visita!`,
       html: `<h2>Modificaste el turno exitosamente!</h2>
-      <h3>Te esperamos en la sucursal ${branch} el ${date} a las ${time}.</h3>
+      <h3>Te esperamos en la sucursal ${branch} el ${date} a las ${time}hs.</h3>
       <h5>Gracias por confiar en nosotros, que disfrutes tu visita!</h5>`,
     },
     (error) => {
@@ -207,8 +218,9 @@ router.post("/appointment/EditConfirmation", (req, res) => {
           .status(200)
           .json({ message: "Correo electrónico enviado con éxito." });
       }
-    }
-  );
+  })
+  })
+   
 });
 
 module.exports = router
