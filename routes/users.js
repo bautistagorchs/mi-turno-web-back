@@ -153,7 +153,7 @@ router.post("/operator", (req, res) => {
             },
           })
             .then((branch) => {
-              if(branch)
+              if(branch && branch.id != req.body.branchId)
                 branch.setOperator(null);
             })
             .then(() => {
