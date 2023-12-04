@@ -142,7 +142,7 @@ router.post("/appointment/confirmation", (req, res) => {
       from: "Mi turno Web <miturnoweb04@gmail.com>",
       to: email,
       subject: "Turno confirmado! 📅",
-      text: `Reservaste el turno exitosamente. La sucursal ${branch}, te espera el ${date} a las ${time}. Gracias por confiar en nosotros, que difrutes tu visita!`,
+      text: `Reservaste el turno exitosamente. La sucursal ${branch}, te espera el ${date} a las ${time}. Gracias por confiar en nosotros, que disfrutes tu visita!`,
       html: `<h2>Reservaste el turno exitosamente!</h2>
       <h3>Te esperamos en la sucursal ${branch} el ${date} a las ${time}.</h3>
       <h5>Gracias por confiar en nosotros, que disfrutes tu visita!</h5>`,
@@ -171,6 +171,31 @@ router.post("/appointment/cancellation", (req, res) => {
       html: `<h2>Se ha cancelado el turno exitosamente!</h2>
       <h3>Su turno en la sucursal ${branch}, el dia ${date} a las ${time} se ha cancelado exitosamente. Esperamos que solicite un nuevo turno a la brebedad.</h3>
       <h5>Gracias por confiar en nosotros, esperamos verle pronto!</h5>`,
+    },
+    (error) => {
+      if (error) {
+        res.status(500).json({
+          error: "Ocurrió un error al enviar el correo electrónico.",
+        });
+      } else {
+        res
+          .status(200)
+          .json({ message: "Correo electrónico enviado con éxito." });
+      }
+    }
+  );
+});
+router.post("/appointment/EditConfirmation", (req, res) => {
+  const { email, branch, date, time } = req.body;
+  transport.sendMail(
+    {
+      from: "Mi turno Web <miturnoweb04@gmail.com>",
+      to: email,
+      subject: "Turno Modificado! 📅",
+      text: `Modificaste el turno exitosamente. La sucursal ${branch}, te espera el ${date} a las ${time}. Gracias por confiar en nosotros, que disfrutes tu visita!`,
+      html: `<h2>Modificaste el turno exitosamente!</h2>
+      <h3>Te esperamos en la sucursal ${branch} el ${date} a las ${time}.</h3>
+      <h5>Gracias por confiar en nosotros, que disfrutes tu visita!</h5>`,
     },
     (error) => {
       if (error) {
