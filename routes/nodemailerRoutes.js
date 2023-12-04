@@ -29,21 +29,23 @@ User.findOne({where : {email: useremail}})
       <h3>Para el cambio de su Contraseña ingrese al siguiente enlace</h3>
       <h5>Recuerde que para efectuar el cambio solo tienes 10 minutos desde el envio de este Correo, transcurrido dicho tiempo sin haber ingresado al enlace y efectuar el cambio de su contraseña, este mismo enlace sera invalido!</h5>
       <a href="http://localhost:3000/recoverPassword/${token}">Recuperar Contraseña 🔑</a>
-      `
-    },
-     (error, info) => {
-      if (error) {
-        res.status(500).json({ error: 'Ocurrió un error al enviar el correo electrónico.' });
-      } else {
-        res.status(200).json({ message: 'Correo electrónico enviado con éxito.' });
+      `,
+          },
+          (error, info) => {
+            if (error) {
+              res.status(500).json({
+                error: "Ocurrió un error al enviar el correo electrónico.",
+              });
+            } else {
+              res
+                .status(200)
+                .json({ message: "Correo electrónico enviado con éxito." });
+            }
+          }
+        );
       }
     })
-
-  }
-  console.log("respuesta del find one =>",resp)
-})
-.catch((error)=> error);
-
+    .catch((error) => error);
 });
 
 router.put("/recoverPassword/:token", (req,res)=>{
@@ -51,37 +53,32 @@ const token = req.params.token
 const{ newPassword }= req.body
 const info = validateTokenNodemailer(token)
 if(!token) return res.sendStatus(401); 
-
-
-
-User.update( { password: newPassword },
-{
-  returning: true,
-  where: { email: info.email },
-  individualHooks: true
-})
-.then(([rowsUpdated, [updatedUser]]) => {
-  if (rowsUpdated > 0) {
-    console.log('Contraseña actualizada!');
-    return res.sendStatus(202);
-  }
-})
-.catch((err) => {
-  console.error('Error al actualizar la contraseña:', err);
-  return res.sendStatus(500);
+  User.update(
+    { password: newPassword },
+    {
+      returning: true,
+      where: { email: info.email },
+      individualHooks: true,
+    }
+  )
+    .then(([rowsUpdated, [updatedUser]]) => {
+      if (rowsUpdated > 0) {
+        return res.sendStatus(202);
+      }
+    })
+    .catch((err) => {
+      console.error("Error al actualizar la contraseña:", err);
+      return res.sendStatus(500);
+    });
 });
 
-})
-
-router.post("/accountConfirmation/:email", (req, res)=>{
-  const useremail = req.params.email
-  console.log("datos del req.body =>",req.body)
-  User.findOne({where : {email: useremail}})
-  .then((resp)=>{
-  
-    if(!resp)return res.status(404).json({ error: 'Usuario no encontrado' });
-    if(resp.dataValues.isConfirmed === true ) return res.status(401).json({ error: 'Usuario ya confirmado' });
-    if(resp){
+router.post("/accountConfirmation/:email", (req, res) => {
+  const useremail = req.params.email;
+  User.findOne({ where: { email: useremail } }).then((resp) => {
+    if (!resp) return res.status(404).json({ error: "Usuario no encontrado" });
+    if (resp.dataValues.isConfirmed === true)
+      return res.status(401).json({ error: "Usuario ya confirmado" });
+    if (resp) {
       const payload = {
         fullname: resp.dataValues.fullname,
         email: resp.dataValues.email,
@@ -95,43 +92,44 @@ router.post("/accountConfirmation/:email", (req, res)=>{
         html: `
         <h3>Para la confirmación de su cuenta ingrese al siguiente enlace </h3>
        <h5>Recuerde que para efectuar la confirmación de su cuenta solo dispone de 10 minutos desde el envio de este Correo, transcurrido dicho tiempo sin haber ingresado al enlace y efectuar la confirmacion de su cuenta este mismo enlace sera invalido y debera solicitar uno nuevamente desde el mismo!</h5>
-        <a href="http://localhost:3000/ConfirmationOfRegistration/${token}">Confirmar Registro ✔️</a>`
-      },
-      (error, info) => {
-       if (error) {
-         res.status(500).json({ error: 'Ocurrió un error al enviar el correo electrónico.' });
-       } else {
-         res.status(200).json({ message: 'Correo electrónico enviado con éxito.' });
-       }
-     })
+        <a href="http://localhost:3000/account/confirm/${token}">Confirmar Registro ✔️</a>`,
+        },
+        (error, info) => {
+          if (error) {
+            res.status(500).json({
+              error: "Ocurrió un error al enviar el correo electrónico.",
+            });
+          } else {
+            res
+              .status(200)
+              .json({ message: "Correo electrónico enviado con éxito." });
+          }
+        }
+      );
     }
-
-})
-
-
-});
-router.put("/confirmation/:token", (req,res)=>{
-  const token = req.params.token
-  const info = validateTokenNodemailer(token)
-  
-  
-  User.update( {  isConfirmed: true },
-  {
-    returning: true,
-    where: { email: info.email },
-    individualHooks: true
-  })
-  .then(([rowsUpdated, [updatedUser]]) => {
-    if (rowsUpdated > 0) {
-      console.log('registro confirmado!');
-      return res.sendStatus(202);
-    }
-  })
-  .catch((err) => {
-    console.error('Error al confirmar registro:', err);
-    return res.sendStatus(500);
   });
-  
+});
+router.put("/confirmation/:token", (req, res) => {
+  const token = req.params.token;
+  const info = validateTokenNodemailer(token);
+
+  User.update(
+    { isConfirmed: true },
+    {
+      returning: true,
+      where: { email: info.email },
+      individualHooks: true,
+    }
+  )
+    .then(([rowsUpdated, [updatedUser]]) => {
+      if (rowsUpdated > 0) {
+        return res.sendStatus(202);
+      }
+    })
+    .catch((err) => {
+      console.error("Error al confirmar registro:", err);
+      return res.sendStatus(500);
+    });
 });
 
 router.post("/appointment/confirmation", (req, res) => {
@@ -222,6 +220,4 @@ router.post("/appointment/EditConfirmation", (req, res) => {
    
 });
 
-module.exports = router
-
-
+module.exports = router;
