@@ -21,7 +21,7 @@ User.findOne({where : {email: useremail}})
     const token = generateTokenNodemailer(payload)
 
     transport.sendMail({
-      from: "miturnoweb04@gmail.com",
+      from: "Mi turno Web <miturnoweb04@gmail.com>",
       to: resp.dataValues.email,
       subject: "Recuperación de Contraseña",
       text: "Solicistaste el cambio de contraseña",
@@ -52,8 +52,7 @@ const{ newPassword }= req.body
 const info = validateTokenNodemailer(token)
 if(!token) return res.sendStatus(401); 
 
-console.log("RESPUESTA DE VALIDACION DE TOKEN =>",info)
-console.log("CONTENIDO DEL BODY", req.body)
+
 
 User.update( { password: newPassword },
 {
@@ -90,7 +89,7 @@ router.post("/accountConfirmation/:email", (req, res)=>{
       const token = generateTokenNodemailer(payload)
 
         transport.sendMail({
-        from: "miturnoweb04@gmail.com",
+        from: "Mi turno Web <miturnoweb04@gmail.com>",
         to: resp.dataValues.email,
         subject:"Confirmación de Registro",
         html: `
