@@ -21,6 +21,8 @@ router.post("/login", (req, res, next) => {
 
     user.validatePassword(password).then((isOk) => {
       if (!isOk) return res.sendStatus(401);
+      if (!user.isConfirmed)
+        return res.status(401).send("Usuario no confirmado");
       const payload = {
         fullname: user.fullname,
         DNI: user.DNI,
