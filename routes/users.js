@@ -442,7 +442,7 @@ router.get("/edit/profile/:email", (req, res) => {
     res.status(200).send(result);
   });
 });
-router.delete("/delete", (req, res) => {
+router.put("/delete", (req, res) => {
   User.findOne({
     where: {
       email: req.body.email,
