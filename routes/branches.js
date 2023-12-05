@@ -1,20 +1,19 @@
 const express = require("express");
 const router = express.Router();
 const { Branch } = require("../models");
+const { validateAuth } = require("../controllers/auth");
 
-router.post("/", (req, res) => {
+router.post("/", validateAuth, (req, res) => {
   Branch.findOrCreate({
     where: { email: req.body.email },
-    defaults: req.body
+    defaults: req.body,
   })
     .then(([branch, created]) => {
       if (!created) {
-        branch.update(req.body)
-          .then(() => {
-            res.status(200).send("Se actualizó la información de la sucursal")
-          })
-      }
-      else {
+        branch.update(req.body).then(() => {
+          res.status(200).send("Se actualizó la información de la sucursal");
+        });
+      } else {
         res.status(200).send("Se creo la sucursal");
       }
     })
@@ -27,8 +26,8 @@ router.post("/", (req, res) => {
 router.get("/info/:id", (req, res) => {
   Branch.findOne({
     where: {
-      id: req.params.id
-    }
+      id: req.params.id,
+    },
   })
     .then((branch) => {
       if (branch) {
@@ -40,8 +39,8 @@ router.get("/info/:id", (req, res) => {
     .catch((error) => {
       console.error("No al buscar la sucursal", error);
       res.status(500).send("Error interno del servidor");
-    })
-})
+    });
+});
 
 router.get("/allBranches", (req, res) => {
   Branch.findAll()
