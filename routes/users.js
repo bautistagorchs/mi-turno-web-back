@@ -442,13 +442,29 @@ router.get("/edit/profile/:email", (req, res) => {
     res.status(200).send(result);
   });
 });
-router.put("/delete", (req, res) => {
-  User.destroy({
+router.delete("/delete", (req, res) => {
+  User.findOne({
     where: {
       email: req.body.email,
     },
   })
-    .then((erasedUser) => res.sendStatus(200))
+    .then((user) => {
+    
+      Appointment.destroy({
+        where:{userId:user.dataValues.id}
+      })
+      .then((resp)=>{
+        User.destroy({
+          where: {
+            email: req.body.email,
+          }
+        })
+        .then((resp)=>res.sendStatus(204))
+        .catch((err) => console.error(err));
+      })
+      .catch((err) => console.error(err));
+
+    })
     .catch((err) => console.error(err));
 });
 
