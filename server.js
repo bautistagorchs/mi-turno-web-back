@@ -9,13 +9,19 @@ const { Appointment, User, Branch } = require("./models/index");
 
 app.use(express.json());
 app.use(morgan("dev"));
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    methods: [`GET`, `POST`, `DELETE`, `OPTIONS`],
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 app.use("/api", routes);
 
 db.sync({ force: false })
   .then(() => {
-    app.listen(3001, () =>
+    app.listen(5432, () =>
       console.log("Servidor levantado en el puerto 3001 👻")
     );
   })

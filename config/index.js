@@ -1,9 +1,14 @@
 const Sequelize = require("sequelize");
-const db = new Sequelize("mi_turno_web", null, null, {
-  host: "localhost",
-  dialect: "postgres",
-  logging: false,
-});
+const db = new Sequelize(
+  "mi_turno_web",
+  "equipo4plataforma5",
+  "ROav3VKHHuGssP9bGZPev1kAPgFZhnc7",
+  {
+    host: "dpg-clnpqn0fvntc73b60650-a",
+    dialect: "postgres",
+    logging: false,
+  }
+);
 db.authenticate()
   .then(() => {
     console.log("Conexion exitosa a la base de datos", db.config.database);
