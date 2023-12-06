@@ -1,16 +1,46 @@
 const { validateToken } = require("../config/tokens");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
+const secretKey = process.env.SECRET_KEY;
 
 function validateAuth(req, res, next) {
-  const token = req.cookies.token;
-  if (!token) return res.sendStatus(401);
+  console.log(req.headers);
+  const authorizationHeader = req.headers.authorization;
 
-  const user = validateToken(token);
+  if (!authorizationHeader || !authorizationHeader.startsWith("Bearer ")) {
+    return res.sendStatus(401);
+  }
 
-  if (!user) return res.sendStatus(401);
-  req.user = user;
+  const token = JSON.parse(authorizationHeader.substring(7)); // Elimina "Bearer " del encabezado
+  console.log(token);
+  try {
+    const decoded = jwt.verify(token, secretKey);
 
-  next();
+    // Puedes hacer otras verificaciones según tus necesidades
+    // Por ejemplo, verificar si el usuario existe en la base de datos
+
+    req.user = decoded; // Añade el usuario decodificado al objeto req
+
+    next();
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(401);
+  }
 }
+
+// function validateAuth(req, res, next) {
+//   const token = req.cookies.token;
+//   console.log(token);
+//   if (!token) return res.sendStatus(401);
+
+//   const user = validateToken(token);
+
+//   if (!user) return res.sendStatus(401);
+//   req.user = user;
+
+//   next();
+// }
 
 function validateRole(req, res, next) {
   const token = req.cookies.token;
