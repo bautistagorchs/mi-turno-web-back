@@ -21,6 +21,10 @@ Metrics.init(
       type: S.INTEGER,
       allowNull: false,
     },
+    state: {
+      type: S.STRING,
+      defaultValue: "canceled",
+    },
   },
   { sequelize: db, modelName: "metrics" }
 );
