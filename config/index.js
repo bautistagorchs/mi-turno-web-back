@@ -1,6 +1,6 @@
 const Sequelize = require("sequelize");
 const db = new Sequelize(
-  "postgres://equipo4plataforma5:ROav3VKHHuGssP9bGZPev1kAPgFZhnc7@dpg-clnpqn0fvntc73b60650-a.frankfurt-postgres.render.com/mi_turno_web",
+  "postgres://equipo4plataforma5:ROav3VKHHuGssP9bGZPev1kAPgFZhnc7@dpg-clnpqn0fvntc73b60650-a/mi_turno_web",
   "equipo4plataforma5",
   "ROav3VKHHuGssP9bGZPev1kAPgFZhnc7",
   {
