@@ -468,4 +468,37 @@ router.put("/delete", (req, res) => {
     .catch((err) => console.error(err));
 });
 
+router.get("/admin/appointments", (req, res) => {
+  const whereClause = {};
+
+  if (req.query.branchName) {
+    whereClause["$branch.name$"] = req.query.branchName;
+  }
+
+  Appointment.findAll({
+    include: [
+      {
+        model: Branch,
+        as: "branch",
+      },
+    ],
+    where: whereClause,
+  })
+    .then((appointments) => {
+      const appointmentsData = appointments.map((appointment) => ({
+        reservationId: appointment.reservationId,
+        userId: appointment.userId,
+        branch: appointment.branch.name,
+        date: appointment.date,
+        schedule: appointment.schedule,
+        attended: appointment.attended,
+      }));
+
+      res.status(200).json(appointmentsData);
+    })
+    .catch((error) => {
+      console.error("Error al obtener las citas:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
+    });
+});
 module.exports = router;
