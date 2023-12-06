@@ -4,6 +4,7 @@ const users = require("./users");
 const branches = require("./branches");
 const appointments = require("./appointments");
 const nodemailer = require("./nodemailerRoutes");
+const metrics = require("./metrics");
 
 router.get("/", (req, res) => {
   res.send("hello");
@@ -13,7 +14,7 @@ router.use("/users", users);
 router.use("/branches", branches);
 router.use("/appointments", appointments);
 router.use("/nodeMailer", nodemailer);
-
+router.use("/metrics", metrics);
 
 router.use("/", (req, res) => res.sendStatus(404));
 

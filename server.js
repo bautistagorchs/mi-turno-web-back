@@ -5,7 +5,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const db = require("./config/index");
 const routes = require("./routes/index");
-const { Appointment, User, Branch } = require("./models/index");
+const { Appointment, User, Branch, Metrics } = require("./models/index");
 
 app.use(express.json());
 app.use(morgan("dev"));

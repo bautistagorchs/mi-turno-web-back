@@ -9,6 +9,11 @@ const { Op } = require("sequelize");
 
 // tus rutas aqui
 // ... exitoooos! 😋
+router.get("/all", (req, res) => {
+  User.findAll()
+    .then((users) => res.status(200).send(users))
+    .catch((err) => console.error(err));
+});
 
 router.post("/login", (req, res, next) => {
   const { email, password } = req.body;
@@ -155,7 +160,7 @@ router.post("/operator", (req, res) => {
             },
           })
             .then((branch) => {
-              if(branch && branch.id != req.body.branchId)
+              if (branch && branch.id != req.body.branchId)
                 branch.setOperator(null);
             })
             .then(() => {
@@ -449,21 +454,19 @@ router.put("/delete", (req, res) => {
     },
   })
     .then((user) => {
-    
       Appointment.destroy({
-        where:{userId:user.dataValues.id}
+        where: { userId: user.dataValues.id },
       })
-      .then((resp)=>{
-        User.destroy({
-          where: {
-            email: req.body.email,
-          }
+        .then((resp) => {
+          User.destroy({
+            where: {
+              email: req.body.email,
+            },
+          })
+            .then((resp) => res.sendStatus(204))
+            .catch((err) => console.error(err));
         })
-        .then((resp)=>res.sendStatus(204))
         .catch((err) => console.error(err));
-      })
-      .catch((err) => console.error(err));
-
     })
     .catch((err) => console.error(err));
 });

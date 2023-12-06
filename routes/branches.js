@@ -3,6 +3,12 @@ const router = express.Router();
 const { Branch } = require("../models");
 const { validateAuth } = require("../controllers/auth");
 
+router.get("/all", (req, res) => {
+  Branch.findAll()
+    .then((users) => res.status(200).send(users))
+    .catch((err) => console.error(err));
+});
+
 router.post("/", validateAuth, (req, res) => {
   Branch.findOrCreate({
     where: { email: req.body.email },
