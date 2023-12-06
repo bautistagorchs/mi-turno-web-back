@@ -10,7 +10,7 @@ router.get("/all", (req, res) => {
 
 router.get("/:branchId", (req, res) => {
   Metrics.findAll({
-    wehre: {
+    where: {
       branchId: req.params.branchId,
     },
   })
