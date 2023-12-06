@@ -6,9 +6,15 @@ const Appointment = require("../models/Appointment");
 const { generateToken } = require("../config/tokens");
 const { validateAuth, validateRole } = require("../controllers/auth");
 const { Op } = require("sequelize");
+const { Metrics } = require("../models");
 
 // tus rutas aqui
 // ... exitoooos! 😋
+router.get("/all", (req, res) => {
+  User.findAll()
+    .then((users) => res.status(200).send(users))
+    .catch((err) => console.error(err));
+});
 
 router.post("/login", (req, res, next) => {
   const { email, password } = req.body;
@@ -155,7 +161,7 @@ router.post("/operator", (req, res) => {
             },
           })
             .then((branch) => {
-              if(branch && branch.id != req.body.branchId)
+              if (branch && branch.id != req.body.branchId)
                 branch.setOperator(null);
             })
             .then(() => {
@@ -327,18 +333,37 @@ router.get("/appointment/:reservationId", (req, res) => {
 });
 
 router.delete("/removeAppointment/:reservationId", (req, res) => {
-  Appointment.destroy({
+  Appointment.findOne({
     where: {
       reservationId: req.params.reservationId,
     },
   })
-    .then(() => {
-      res.status(204).send("Se removió la reserva");
+    .then((appointment) => {
+      Metrics.create({
+        branchId: appointment.branchId,
+        date: appointment.date,
+        schedule: appointment.schedule,
+        reason: 4,
+      })
+        .then((res) => console.log("created succesfully", res))
+        .catch((err) => console.error(err));
+      return appointment;
     })
-    .catch((error) => {
-      console.error("Error al eliminar la reserva:", error);
-      res.status(500).send("Error interno del servidor");
-    });
+    .then((appointment) => {
+      Appointment.destroy({
+        where: {
+          reservationId: appointment.reservationId,
+        },
+      })
+        .then(() => {
+          res.status(204).send("Se removió la reserva");
+        })
+        .catch((error) => {
+          console.error("Error al eliminar la reserva:", error);
+          res.status(500).send("Error interno del servidor");
+        });
+    })
+    .catch((err) => console.error(err));
 });
 
 router.get("/appointmentList/:DNI", (req, res) => {
@@ -449,21 +474,19 @@ router.put("/delete", (req, res) => {
     },
   })
     .then((user) => {
-    
       Appointment.destroy({
-        where:{userId:user.dataValues.id}
+        where: { userId: user.dataValues.id },
       })
-      .then((resp)=>{
-        User.destroy({
-          where: {
-            email: req.body.email,
-          }
+        .then((resp) => {
+          User.destroy({
+            where: {
+              email: req.body.email,
+            },
+          })
+            .then((resp) => res.sendStatus(204))
+            .catch((err) => console.error(err));
         })
-        .then((resp)=>res.sendStatus(204))
         .catch((err) => console.error(err));
-      })
-      .catch((err) => console.error(err));
-
     })
     .catch((err) => console.error(err));
 });

@@ -3,6 +3,12 @@ const router = express.Router();
 const { Appointment, Branch } = require("../models");
 const { findAll } = require("../models/Branch");
 
+router.get("/all", (req, res) => {
+  Appointment.findAll()
+    .then((users) => res.status(200).send(users))
+    .catch((err) => console.error(err));
+});
+
 router.get("/confirmed/:branchId", (req, res) => {
   Appointment.findAll({
     where: { branchId: req.params.branchId },
@@ -13,25 +19,25 @@ router.get("/confirmed/:branchId", (req, res) => {
 });
 
 router.put("/attended/:id", (req, res) => {
-  const {id} = req.params
-  Appointment.update( { attended : true },
+  const { id } = req.params;
+  Appointment.update(
+    { attended: true },
     {
       returning: true,
-      where: {reservationId: id },
-      individualHooks: true
-    })
+      where: { reservationId: id },
+      individualHooks: true,
+    }
+  )
     .then(([rowsUpdated, [updatedUser]]) => {
       if (rowsUpdated > 0) {
-        console.log('Asistencia confirmada!');
+        console.log("Asistencia confirmada!");
         return res.sendStatus(202);
       }
     })
     .catch((err) => {
-      console.error('Error al confirmar asistencia', err);
+      console.error("Error al confirmar asistencia", err);
       return res.sendStatus(500);
     });
 });
 
 module.exports = router;
-
-
