@@ -343,9 +343,9 @@ router.delete("/removeAppointment/:reservationId", (req, res) => {
         branchId: appointment.branchId,
         date: appointment.date,
         schedule: appointment.schedule,
-        reason: 4,
+        reason: req.query.reason,
       })
-        .then((res) => console.log("created succesfully", res))
+        .then((res) => {})
         .catch((err) => console.error(err));
       return appointment;
     })
